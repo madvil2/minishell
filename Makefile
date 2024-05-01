@@ -13,10 +13,12 @@ LFLAGS :=			-L $(LIB_PATH) -lft
 HFILES :=			minishell
 
 SUB_PATH :=			.\
-					parsing
+					parsing\
+					executor
 
 FILES :=			main\
-					minishell
+					minishell\
+					exec
 LIB :=				$(LIB_PATH)libft.a
 
 HDRS :=				$(addprefix $(INC_PATH), $(addsuffix .h, $(HFILES)))
