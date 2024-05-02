@@ -1,8 +1,19 @@
-#include <stdio.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exec.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kokaimov <kokaimov@student.42berlin.de>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/05/02 02:47:33 by kokaimov          #+#    #+#             */
+/*   Updated: 2024/05/02 03:36:08 by kokaimov         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/wait.h>
 
 #define MAX_ARGS 10
@@ -12,56 +23,79 @@ typedef struct {
 	char *args[MAX_ARGS];
 } Command;
 
-void execute_command(Command cmd) {
-	if (fork() == 0) { // Child process
-		execvp(cmd.command, cmd.args);
-		perror("execvp"); // Only returns on error
-		exit(EXIT_FAILURE);
-	} else { // Parent process
-		wait(NULL); // Wait for the child to finish
+void	execute_command(Command cmd)
+{
+	int	status;
+	pid_t	pid = fork();
+	if (pid == 0)
+	{
+		if (execve(cmd.command, cmd.args, NULL) == -1)
+		{
+			write(STDERR_FILENO, "Error executing command\n", 24);
+			exit(EXIT_FAILURE);
+		}
 	}
+	else if (pid > 0)
+		waitpid(pid, &status, 0);
+	else
+		write(STDERR_FILENO, "Fork failed\n", 12);
 }
 
 void execute_pipeline(Command *cmds, int n) {
-	int i;
-	int pipe_fds[2];
-	int in_fd = 0; // Initially set to standard input
+	int i = 0, in_fd = 0, fd[2];
 
-	for (i = 0; i < n; i++) {
-		pipe(pipe_fds); // Create a pipe
+	while (i < n)
+	{
+		if (i < n - 1)
+		{
+			if (pipe(fd) < 0)
+			{
+				write(STDERR_FILENO, "Pipe failed\n", 12);
+				exit(EXIT_FAILURE);
+			}
+		}
 
-		if (fork() == 0) { // Child process
-			if (in_fd != 0) { // If not the first command
-				dup2(in_fd, 0); // Replace standard input with the input part of the pipe
+		pid_t pid = fork();
+		if (pid == 0)
+		{
+			if (in_fd != 0)
+			{
+				dup2(in_fd, 0); // Set stdin to the input part of the pipe
 				close(in_fd);
 			}
-			if (i < n - 1) { // If not the last command
-				dup2(pipe_fds[1], 1); // Replace standard output with the output part of the pipe
-				close(pipe_fds[1]);
+			if (i < n - 1)
+			{
+				close(fd[0]); // Close the read end of the pipe in the child
+				dup2(fd[1], 1); // Set stdout to the output part of the pipe
+				close(fd[1]);
 			}
-			execvp(cmds[i].command, cmds[i].args);
-			perror("execvp");
+			execve(cmds[i].command, cmds[i].args, NULL);
+			write(STDERR_FILENO, "Execve failed\n", 14);
 			exit(EXIT_FAILURE);
-		} else { // Parent process
-			close(pipe_fds[1]); // Close the unused write end
-			if (in_fd != 0) {
-				close(in_fd); // Close the previous read end
-			}
-			in_fd = pipe_fds[0]; // Save the read end of the current pipe to be the input for the next command
 		}
+		else if (pid < 0)
+			return ((void)write(STDERR_FILENO, "Fork failed\n", 12));
+		else
+		{
+			if (in_fd != 0)
+				close(in_fd);
+			if (i < n - 1)
+			{
+				close(fd[1]); // Close the write end of the pipe in the parent
+				in_fd = fd[0]; // Keep the read end of the pipe
+			}
+		}
+		i++;
 	}
-
-	// The parent process waits for all child processes
-	for (i = 0; i < n; i++) {
-		wait(NULL);
-	}
+	while (wait(NULL) > 0);
 }
 
-int main() {
+int	main()
+{
 	Command cmds[3] = {
-			{"ls", {"ls", "-l", NULL}},
-			{"grep", {"grep", "minishell", NULL}},
-			{"sort", {"sort", NULL}}
+			{"/bin/ls", {"/bin/ls", "-l", NULL}},
+			{"/usr/bin/grep", {"/usr/bin/grep", "minishell", NULL}},
+			{"/usr/bin/sort", {"/usr/bin/sort", NULL}}
 	};
 
 	execute_pipeline(cmds, 3);
