@@ -9,7 +9,10 @@
 typedef struct {
 	char *command;
 	char *args[10];
-}	Command;
+	char *input;  // Path to input file, or NULL if no redirection
+	char *output; // Path to output file, or NULL if no redirection
+} Command;
+
 
 static char	*search_executable(char *program, char **path_parts) {
 	struct stat statbuf;
@@ -30,31 +33,61 @@ static char	*search_executable(char *program, char **path_parts) {
 	return (NULL);
 }
 
-void	execute_command(Command cmd) {
+static void	setup_redirections(Command cmd) {
+	if (cmd.input) {
+		int in_fd = open(cmd.input, O_RDONLY);
+		if (in_fd < 0) {
+			perror("open input");
+			exit(EXIT_FAILURE);
+		}
+		if (dup2(in_fd, STDIN_FILENO) < 0) {
+			perror("dup2 input");
+			exit(EXIT_FAILURE);
+		}
+		close(in_fd);
+	}
+
+	if (cmd.output) {
+		int out_fd = open(cmd.output, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		if (out_fd < 0) {
+			perror("open output");
+			exit(EXIT_FAILURE);
+		}
+		if (dup2(out_fd, STDOUT_FILENO) < 0) {
+			perror("dup2 output");
+			exit(EXIT_FAILURE);
+		}
+		close(out_fd);
+	}
+}
+
+
+void execute_command(Command cmd) {
 	int status;
 	char **path_parts = ft_split(getenv("PATH"), ':');
 	char *executable_path = search_executable(cmd.command, path_parts);
-	if (!executable_path)
-	{
+	if (!executable_path) {
 		write(STDERR_FILENO, "Command not found\n", 18);
 		free_matrix(path_parts);
-		return ;
+		return;
 	}
 
 	pid_t pid = fork();
-	if (pid == 0)
-	{
+	if (pid == 0) {
+		setup_redirections(cmd);  // Set up redirections before executing
 		execve(executable_path, cmd.args, NULL);
 		perror("execve");
 		exit(EXIT_FAILURE);
-	}
-	else if (pid > 0)
+	} else if (pid > 0) {
 		waitpid(pid, &status, 0);
-	else
+	} else {
 		perror("fork");
+	}
+
 	free(executable_path);
 	free_matrix(path_parts);
 }
+
 
 void	execute_pipeline(Command *cmds, int n) {
 	int i = 0, in_fd = 0, fd[2];
@@ -112,9 +145,9 @@ void	execute_pipeline(Command *cmds, int n) {
 int	main()
 {
 	Command cmds[3] = {
-			{"ls", {"ls", "-l", "-a", NULL}},
-			{"grep", {"grep", "minishell", NULL}},
-			{"sort", {"sort", NULL}}
+			{"ls", {"ls", "-l", "-a", NULL}, NULL, NULL},
+			{"grep", {"grep", "minishell", NULL}, NULL, NULL},
+			{"sort", {"sort", NULL}, NULL, "test.txt"}
 	};
 
 	execute_pipeline(cmds, 3);
