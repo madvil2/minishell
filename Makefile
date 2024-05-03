@@ -18,6 +18,8 @@ SUB_PATH :=			.\
 
 FILES :=			main\
 					minishell\
+					exec\
+					signals\
 					env
 
 LIB :=				$(LIB_PATH)libft.a
