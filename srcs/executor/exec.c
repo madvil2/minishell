@@ -61,8 +61,7 @@ static void	setup_redirections(Command cmd) {
 	}
 }
 
-
-void execute_command(Command cmd) {
+static void execute_command(Command cmd) {
 	int status;
 	char **path_parts = ft_split(getenv("PATH"), ':');
 	char *executable_path = search_executable(cmd.command, path_parts);
@@ -147,7 +146,7 @@ int	main()
 	Command cmds[3] = {
 			{"ls", {"ls", "-l", "-a", NULL}, NULL, NULL},
 			{"grep", {"grep", "minishell", NULL}, NULL, NULL},
-			{"sort", {"sort", NULL}, NULL, "test.txt"}
+			{"sort", {"sort", NULL}, NULL, NULL}
 	};
 
 	execute_pipeline(cmds, 3);
