@@ -12,8 +12,8 @@
 
 #include "../includes/minishell.h"
 
-int	main(void)
-{
-	printf("Hello, World!\n");
-	return 0;
-}
+//int	main(void)
+//{
+//	t_deque	*tokens;
+//	tokens = tokenize("echo hi | print hui &&");
+//}
