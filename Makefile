@@ -17,7 +17,9 @@ SUB_PATH :=			.\
 
 FILES :=			main\
 					minishell\
-					env
+					env\
+					tokenize
+
 LIB :=				$(LIB_PATH)libft.a
 
 HDRS :=				$(addprefix $(INC_PATH), $(addsuffix .h, $(HFILES)))
