@@ -106,7 +106,7 @@ static void	print_tokens(t_deque *tokens)
 	travel = tokens->head;
 	while (++i < tokens->size)
 	{
-		printf("%s\n", travel->as_token->str);
+		ft_printf("%s\n", travel->as_token->str);
 		travel = travel->next;
 	}
 }
