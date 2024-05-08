@@ -15,7 +15,7 @@ typedef struct {
 
 
 static char	*search_executable(char *program, char **path_parts) {
-	struct stat statbuf;
+	struct stat	statbuf;
 
 	if (ft_strchr(program, '/'))
 		return (access(program, X_OK) == 0) ? ft_strdup(program) : NULL;
@@ -62,9 +62,9 @@ static void	setup_redirections(Command cmd) {
 }
 
 static void execute_command(Command cmd) {
-	int status;
-	char **path_parts = ft_split(getenv("PATH"), ':');
-	char *executable_path = search_executable(cmd.command, path_parts);
+	int	status;
+	char	**path_parts = ft_split(getenv("PATH"), ':');
+	char	*executable_path = search_executable(cmd.command, path_parts);
 	if (!executable_path) {
 		write(STDERR_FILENO, "Command not found\n", 18);
 		free_matrix(path_parts);
@@ -89,7 +89,7 @@ static void execute_command(Command cmd) {
 
 
 void	execute_pipeline(Command *cmds, int n) {
-	int i = 0, in_fd = 0, fd[2];
+	int	i = 0, in_fd = 0, fd[2];
 
 	while (i < n)
 	{
@@ -143,12 +143,12 @@ void	execute_pipeline(Command *cmds, int n) {
 
 int	main()
 {
-	Command cmds[3] = {
+	Command	cmds[3] = {
 			{"ls", {"ls", "-l", "-a", NULL}, NULL, NULL},
 			{"grep", {"grep", "minishell", NULL}, NULL, NULL},
 			{"sort", {"sort", NULL}, NULL, NULL}
 	};
 
 	execute_pipeline(cmds, 3);
-	return 0;
+	return (0);
 }
