@@ -43,7 +43,7 @@ int	main()
 
 	while (1)
 	{
-		char *input = readline("minishell> ");
+		char *input = readline("(◕‿◕)> ");
 		if (!input) {
 			printf("exit\n");
 			break;
