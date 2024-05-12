@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exec_pipe.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kokaimov <kokaimov@student.42berlin.de>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/05/12 18:02:39 by kokaimov          #+#    #+#             */
+/*   Updated: 2024/05/12 18:02:39 by kokaimov         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -7,11 +19,11 @@
 #include <sys/stat.h>
 
 typedef struct {
-	char *command;
-	char *args[10];
-	char *input;  // Path to input file, or NULL if no redirection
-	char *output; // Path to output file, or NULL if no redirection
-} Command;
+	char	*command;
+	char	*args[10];
+	char	*input;  // Path to input file, or NULL if no redirection
+	char	*output; // Path to output file, or NULL if no redirection
+}	Command;
 
 
 static char	*search_executable(char *program, char **path_parts) {
@@ -22,8 +34,10 @@ static char	*search_executable(char *program, char **path_parts) {
 
 	while (path_parts && *path_parts)
 	{
-		char *path = ft_strjoin(*path_parts, "/");
-		char *executable_path = ft_strjoin(path, program);
+		char *path;
+		path = ft_strjoin(*path_parts, "/");
+		char *executable_path;
+		executable_path = ft_strjoin(path, program);
 		free(path);
 		if (access(executable_path, X_OK) == 0 && stat(executable_path, &statbuf) == 0 && S_ISREG(statbuf.st_mode))
 			return (executable_path);
@@ -35,7 +49,8 @@ static char	*search_executable(char *program, char **path_parts) {
 
 static void	setup_redirections(Command cmd) {
 	if (cmd.input) {
-		int in_fd = open(cmd.input, O_RDONLY);
+		int	in_fd;
+		in_fd = open(cmd.input, O_RDONLY);
 		if (in_fd < 0) {
 			perror("open input");
 			exit(EXIT_FAILURE);
@@ -48,7 +63,8 @@ static void	setup_redirections(Command cmd) {
 	}
 
 	if (cmd.output) {
-		int out_fd = open(cmd.output, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		int	out_fd;
+		out_fd = open(cmd.output, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (out_fd < 0) {
 			perror("open output");
 			exit(EXIT_FAILURE);
@@ -61,36 +77,40 @@ static void	setup_redirections(Command cmd) {
 	}
 }
 
-static void execute_command(Command cmd) {
+static void	execute_command(Command cmd) {
 	int	status;
-	char	**path_parts = ft_split(getenv("PATH"), ':');
-	char	*executable_path = search_executable(cmd.command, path_parts);
-	if (!executable_path) {
+	char	**path_parts;
+	char	*executable_path;
+
+	path_parts = ft_split(getenv("PATH"), ':');
+	executable_path = search_executable(cmd.command, path_parts);
+	if (!executable_path)
+	{
 		write(STDERR_FILENO, "Command not found\n", 18);
 		free_matrix(path_parts);
 		return;
 	}
-
 	pid_t pid = fork();
 	if (pid == 0) {
 		setup_redirections(cmd);  // Set up redirections before executing
 		execve(executable_path, cmd.args, NULL);
 		perror("execve");
 		exit(EXIT_FAILURE);
-	} else if (pid > 0) {
-		waitpid(pid, &status, 0);
-	} else {
-		perror("fork");
 	}
-
+	else if (pid > 0)
+		waitpid(pid, &status, 0);
+	else
+		perror("fork");
 	free(executable_path);
 	free_matrix(path_parts);
 }
 
-
 void	execute_pipeline(Command *cmds, int n) {
-	int	i = 0, in_fd = 0, fd[2];
-
+	int	i;
+	int	in_fd;
+	int	fd[2];
+	i = 0;
+	in_fd = 0;
 	while (i < n)
 	{
 		if (i < n - 1)
@@ -101,7 +121,6 @@ void	execute_pipeline(Command *cmds, int n) {
 				exit(EXIT_FAILURE);
 			}
 		}
-
 		pid_t pid = fork();
 		if (pid == 0)
 		{
@@ -116,7 +135,6 @@ void	execute_pipeline(Command *cmds, int n) {
 				dup2(fd[1], 1);  // Use the write end of the next pipe as stdout
 				close(fd[1]);
 			}
-
 			execute_command(cmds[i]);
 			exit(EXIT_FAILURE);  // Should never reach here unless execution fails
 		}
@@ -137,7 +155,6 @@ void	execute_pipeline(Command *cmds, int n) {
 		}
 		i++;
 	}
-
 	while (wait(NULL) > 0);
 }
 
