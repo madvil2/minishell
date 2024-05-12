@@ -14,6 +14,6 @@
 
 void	globbing(t_deque *tokens)
 {
-
+	tokens->head = tokens->head;
 }
 //s1*s2*s3*s4*

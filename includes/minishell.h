@@ -75,39 +75,6 @@ void	envp_add(const char *key, const char *value);
 void	envp_delete(const char *key);
 char	*envp_find(const char *key);
 void	expand_env_vars(t_deque *tokens);
-# include "../libft/includes/libft.h"
-# include "../libft/includes/hashtable.h"
-
-#define TRUE 1
-#define FALSE 0
-
-typedef enum e_token_type	t_token_type;
-typedef struct s_token		t_token;
-
-enum e_token_type
-{
-	TOK_EOL = 1,
-	TOK_AND,
-	TOK_OR,
-	TOK_PIPE,
-	TOK_L_PAREN,
-	TOK_R_PAREN,
-	TOK_WORD,
-	TOK_OVERWRITE,
-	TOK_APPEND,
-	TOK_INPUT,
-	TOK_HEREDOC,
-	TOK_EPSILON,
-	TOK_SQUOTE_STR,
-	TOK_DQUOTE_STR,
-	TOK_ERROR
-};
-
-struct s_token
-{
-	t_token_type	type;
-	char			*str;
-};
 
 //tokenize.c
 t_deque	*tokenize(const char *str);
@@ -119,5 +86,8 @@ void	envp_add(const char *key, const char *value);
 void	envp_delete(const char *key);
 char	*envp_find(const char *key);
 void	expand_env_vars(t_deque *tokens);
+
+// globing.c
+void	globbing(t_deque *tokens);
 
 #endif

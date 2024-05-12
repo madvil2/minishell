@@ -170,7 +170,7 @@ t_deque	*tokenize(const char *str)
 	expand_env_vars(tokens);
 	printf("After expanding:\n");
 	print_tokens(tokens);
-	globbing();
+	globbing(tokens);
 	printf("After globbing:\n");
 	print_tokens(tokens);
 //	join();
