@@ -17,7 +17,8 @@ SUB_PATH :=			.\
 
 FILES :=			main\
 					minishell\
-					tokenize
+					tokenize\
+					expand_env_vars
 
 LIB :=				$(LIB_PATH)libft.a
 
@@ -46,7 +47,7 @@ clean: mclean
 	make clean -C $(LIB_PATH)
 
 fclean: mfclean
-	rm -rf $(LIB_PATH)
+	#rm -rf $(LIB_PATH)
 
 re: fclean all
 

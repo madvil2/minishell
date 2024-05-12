@@ -10,11 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/minishell.h"
+#include "../../includes/minishell.h"
 
-static bool	is_word_char(char c)
+static bool	is_word_char(const char c)
 {
-	if (ft_isprint(c) && !ft_isspace(c) && !ft_strchr("><()'\"|&", c))//single ampersand inside a word?
+//	if (ft_isprint(c) && !ft_isspace(c) && !ft_strchr("><()'\"|&", c))//single ampersand inside a word?
+	if (ft_isprint(c) && !ft_strchr("><()'\"|&", c))
 		return (TRUE);
 	return (FALSE);
 }
@@ -24,6 +25,7 @@ static bool	add_token(const char **str, t_deque *deque, int token_size, t_token_
 	t_deque_node	*new_node;
 	t_token			*token;
 
+	set_allocator(TEMP);
 	token = ft_malloc(sizeof(t_token));
 	token->type = type;
 	token->str = ft_malloc((token_size + 1) * sizeof(char));
@@ -31,7 +33,6 @@ static bool	add_token(const char **str, t_deque *deque, int token_size, t_token_
 	new_node = deque_node_init(token);
 	deque_push_node_left(deque, new_node);
 	*str += token_size;
-	printf("%d\n", token_size);
 	return (TRUE);
 }
 
@@ -106,7 +107,40 @@ static void	print_tokens(t_deque *tokens)
 	travel = tokens->head;
 	while (++i < tokens->size)
 	{
-		ft_printf("%s\n", travel->as_token->str);
+		if (travel->as_token->type == TOK_AND)
+			printf("%s \"%s\"\n", STR_TOK_AND, travel->as_token->str);
+		else if (travel->as_token->type == TOK_APPEND)
+			printf("%s \"%s\"\n", STR_TOK_APPEND, travel->as_token->str);
+		else if (travel->as_token->type == TOK_DQUOTE_STR)
+			printf("%s \"%s\"\n", STR_TOK_DQUOTE_STR, travel->as_token->str);
+		else if (travel->as_token->type == TOK_EOL)
+			printf("%s \"%s\"\n", STR_TOK_EOL, travel->as_token->str);
+		else if (travel->as_token->type == TOK_EPSILON)
+			printf("%s \"%s\"\n", STR_TOK_EPSILON, travel->as_token->str);
+		else if (travel->as_token->type == TOK_ERROR)
+			printf("%s \"%s\"\n", STR_TOK_ERROR, travel->as_token->str);
+		else if (travel->as_token->type == TOK_HEREDOC)
+			printf("%s \"%s\"\n", STR_TOK_HEREDOC, travel->as_token->str);
+		else if (travel->as_token->type == TOK_INPUT)
+			printf("%s \"%s\"\n", STR_TOK_INPUT, travel->as_token->str);
+		else if (travel->as_token->type == TOK_EPSILON)
+			printf("%s \"%s\"\n", STR_TOK_EPSILON, travel->as_token->str);
+		else if (travel->as_token->type == TOK_L_PAREN)
+			printf("%s \"%s\"\n", STR_TOK_L_PAREN, travel->as_token->str);
+		else if (travel->as_token->type == TOK_R_PAREN)
+			printf("%s \"%s\"\n", STR_TOK_R_PAREN, travel->as_token->str);
+		else if (travel->as_token->type == TOK_OR)
+			printf("%s \"%s\"\n", STR_TOK_OR, travel->as_token->str);
+		else if (travel->as_token->type == TOK_OVERWRITE)
+			printf("%s \"%s\"\n", STR_TOK_OVERWRITE, travel->as_token->str);
+		else if (travel->as_token->type == TOK_SQUOTE_STR)
+			printf("%s \"%s\"\n", STR_TOK_SQUOTE_STR, travel->as_token->str);
+		else if (travel->as_token->type == TOK_PIPE)
+			printf("%s \"%s\"\n", STR_TOK_PIPE, travel->as_token->str);
+		else if (travel->as_token->type == TOK_WORD)
+			printf("%s \"%s\"\n", STR_TOK_WORD, travel->as_token->str);
+		else
+			printf("%s \"%s\"\n", STR_TOK_UNKNOWN, travel->as_token->str);
 		travel = travel->next;
 	}
 }
@@ -115,6 +149,7 @@ t_deque	*tokenize(const char *str)
 {
 	t_deque *tokens;
 
+	set_allocator(TEMP);
 	tokens = deque_init();
 	while (ft_isspace(*str))
 		str++;
@@ -123,25 +158,31 @@ t_deque	*tokenize(const char *str)
 		if (!tokenize_static(&str, tokens))
 		{
 			if (*str == '"' || *str == '\'')
-			{
 				tokenize_quote(&str, tokens);
-				printf("tokenize quote\n");
-			}
 			else
 				tokenize_word(&str, tokens);
 		}
-		while (ft_isspace(*str))
-			str++;
+//		while (ft_isspace(*str))
+//			str++;
 	}
+	printf("Before:\n");
 	print_tokens(tokens);
-//	expand();
-//	glob();
+	expand_env_vars(tokens);
+	printf("After expanding:\n");
+	print_tokens(tokens);
+//	globbing();
+//	printf("After globbing:\n");
+//	print_tokens(tokens);
 //	join();
 	return (tokens);
 }
 
-int	main(void)
+int	main(int argc, char **argv, char **envp)
 {
 	t_deque	*tokens;
-	tokens = tokenize("echo hi | print hui && 'abobich&|||<><ds'");
+
+	argc = 3;
+	argv = NULL;
+	get_envp(envp);
+	tokens = tokenize("$USER echo \"$HOME=$PATH\" | print hui && 'abobich&|||<><ds'$");
 }
