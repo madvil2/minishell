@@ -15,8 +15,7 @@ HFILES :=			minishell
 SUB_PATH :=			.\
 					parsing
 
-FILES :=			main\
-					minishell\
+FILES :=			minishell\
 					env\
 					tokenize\
 					expand_env_vars\
@@ -49,7 +48,7 @@ clean: mclean
 	make clean -C $(LIB_PATH)
 
 fclean: mfclean
-	rm -rf $(LIB_PATH)
+	#rm -rf $(LIB_PATH)
 
 re: fclean all
 
