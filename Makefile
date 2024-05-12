@@ -18,7 +18,8 @@ SUB_PATH :=			.\
 FILES :=			main\
 					minishell\
 					tokenize\
-					expand_env_vars
+					expand_env_vars\
+					globbing
 
 LIB :=				$(LIB_PATH)libft.a
 
