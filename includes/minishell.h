@@ -15,4 +15,9 @@
 
 # include <stdio.h>
 
+t_ht	*get_envp(char **env);
+void	envp_add(const char *key, const char *value);
+void	envp_delete(const char *key);
+char	*envp_find(const char *key);
+
 #endif
