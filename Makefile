@@ -19,7 +19,8 @@ FILES :=			main\
 					minishell\
 					env\
 					tokenize\
-					expand_env_vars
+					expand_env_vars\
+					globbing
 
 LIB :=				$(LIB_PATH)libft.a
 
