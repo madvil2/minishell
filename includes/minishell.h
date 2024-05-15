@@ -14,11 +14,15 @@
 # define MINISHELL_H
 
 # include <stdio.h>
+# include <dirent.h>
+
 # include "../libft/includes/libft.h"
 # include "../libft/includes/hashtable.h"
 
 #define TRUE 1
 #define FALSE 0
+
+#define IFS " \n\t"
 
 typedef enum e_token_type	t_token_type;
 typedef struct s_token		t_token;

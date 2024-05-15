@@ -30,7 +30,6 @@ t_ht	*get_envp(char **env)
 			ht_add(ht_envp, ft_strndup(*env, equal_pos), ft_strdup(*env + equal_pos + 1));
 			env++;
 		}
-		ht_print(ht_envp);
 	}
 	set_allocator(TEMP);
 	return (ht_envp);

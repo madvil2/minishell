@@ -78,10 +78,10 @@ void	expand_env_vars(t_deque *tokens)
 			|| travel->as_token->type == TOK_DQUOTE_STR)
 		{
 			travel->as_token->str = expand_word(travel->as_token->str);
-			travel->as_token->type = TOK_WORD;
+//			travel->as_token->type = TOK_WORD;
 		}
-		else if (travel->as_token->type == TOK_SQUOTE_STR)
-			travel->as_token->type = TOK_WORD;
+//		else if (travel->as_token->type == TOK_SQUOTE_STR)
+//			travel->as_token->type = TOK_WORD;
 		travel = travel->next;
 	}
 }
