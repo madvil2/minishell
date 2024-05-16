@@ -19,7 +19,8 @@ FILES :=			minishell\
 					env\
 					tokenize\
 					expand_env_vars\
-					globbing
+					globbing\
+					form_words
 
 LIB :=				$(LIB_PATH)libft.a
 

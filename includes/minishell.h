@@ -84,14 +84,13 @@ void	expand_env_vars(t_deque *tokens);
 t_deque	*tokenize(const char *str);
 
 //expand_env_vars.c
-
-t_ht	*get_envp(char **env);
-void	envp_add(const char *key, const char *value);
-void	envp_delete(const char *key);
-char	*envp_find(const char *key);
 void	expand_env_vars(t_deque *tokens);
 
 // globing.c
 void	globbing(t_deque *tokens);
+
+//form_words.c
+void	merge_words(t_deque **tokens);
+void	split_words(t_deque **tokens);
 
 #endif

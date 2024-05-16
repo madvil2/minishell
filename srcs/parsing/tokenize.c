@@ -165,17 +165,20 @@ t_deque	*tokenize(const char *str)
 //		while (ft_isspace(*str))
 //			str++;
 	}
-//	printf("Before:\n");
-//	print_tokens(tokens);
+	printf("Before:\n");
+	print_tokens(tokens);
 	expand_env_vars(tokens);
-//	printf("After expanding:\n");
-//	print_tokens(tokens);
+	printf("After expanding:\n");
+	print_tokens(tokens);
 	globbing(tokens);
 	printf("After globbing:\n");
 	print_tokens(tokens);
-//	merge_words();
-//	printf("After merging:\n");
-//	print_tokens(tokens);
+	merge_words(&tokens);
+	printf("After merge:\n");
+	print_tokens(tokens);
+	split_words(&tokens);
+	printf("After splitting:\n");
+	print_tokens(tokens);
 	return (tokens);
 }
 
@@ -183,8 +186,10 @@ int	main(int argc, char **argv, char **envp)
 {
 	t_deque	*tokens;
 
-	argc = 3;
-	argv = NULL;
+	if ((argc && argv))
+		argc = 0;
 	get_envp(envp);
-	tokens = tokenize("$USER *l* echo \"$HOME=$PATH\" | print hui && 'abo*bich&|||<><ds'$");
+	tokens = tokenize("$USER *l* echo \"$HOME=$PATH a\" | print hui && 'abo*bich&|||<><ds'$");
+	if (tokens)
+		argc = 0;
 }
