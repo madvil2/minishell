@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   signals.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kokaimov <kokaimov@student.42berlin.de>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/05/18 14:48:21 by kokaimov          #+#    #+#             */
+/*   Updated: 2024/05/18 14:48:21 by kokaimov         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../libft/libft.h"
 #include "../../includes/minishell.h"
 #include <signal.h>
@@ -22,13 +34,11 @@ void	signals_hook(void)
 	struct sigaction	sa_ignore;
 
 	rl_event_hook = event_hook; // Set readline's event hook.
-
 	// Setup SIGINT handling
 	sigemptyset(&sa_int.sa_mask);
 	sa_int.sa_flags = 0; // Clear flags to default.
 	sa_int.sa_handler = sigint_handle; // Assign signal handler for SIGINT.
 	sigaction(SIGINT, &sa_int, NULL);
-
 	// Ignore SIGQUIT signals.
 	sigemptyset(&sa_ignore.sa_mask);
 	sa_ignore.sa_flags = 0; // Clear flags to default.
@@ -37,20 +47,20 @@ void	signals_hook(void)
 	sigaction(SIGTSTP, &sa_ignore, NULL); // Ignore Ctrl+Z.
 }
 
-int	main()
-{
-	signals_hook();
-
-	while (1)
-	{
-		char *input = readline("(◕‿◕)> ");
-		if (!input) {
-			printf("exit\n");
-			break;
-		}
-		if (*input) {
-			printf("You entered: %s\n", input);
-		}
-		free(input);
-	}
-}
+//int	main()
+//{
+//	signals_hook();
+//
+//	while (1)
+//	{
+//		char *input = readline("(◕‿◕)> ");
+//		if (!input) {
+//			printf("exit\n");
+//			break;
+//		}
+//		if (*input) {
+//			printf("You entered: %s\n", input);
+//		}
+//		free(input);
+//	}
+//}

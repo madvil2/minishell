@@ -18,7 +18,7 @@ SUB_PATH :=			.\
 
 FILES :=			main\
 					minishell\
-					exec\
+					exec_pipe\
 					signals\
 					env
 

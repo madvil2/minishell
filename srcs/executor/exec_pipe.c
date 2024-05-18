@@ -6,7 +6,7 @@
 /*   By: kokaimov <kokaimov@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 18:02:39 by kokaimov          #+#    #+#             */
-/*   Updated: 2024/05/12 18:02:39 by kokaimov         ###   ########.fr       */
+/*   Updated: 2024/05/18 15:00:54 by kokaimov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,25 +21,30 @@
 typedef struct {
 	char	*command;
 	char	*args[10];
-	char	*input;  // Path to input file, or NULL if no redirection
+	char	*input; // Path to input file, or NULL if no redirection
 	char	*output; // Path to output file, or NULL if no redirection
 }	Command;
 
-
-static char	*search_executable(char *program, char **path_parts) {
+static char	*search_executable(char *program, char **path_parts)
+{
 	struct stat	statbuf;
+	char		*path;
+	char		*executable_path;
 
 	if (ft_strchr(program, '/'))
-		return (access(program, X_OK) == 0) ? ft_strdup(program) : NULL;
-
+	{
+		if (access(program, X_OK) == 0)
+			return (ft_strdup(program));
+		else
+			return (NULL);
+	}
 	while (path_parts && *path_parts)
 	{
-		char *path;
 		path = ft_strjoin(*path_parts, "/");
-		char *executable_path;
 		executable_path = ft_strjoin(path, program);
 		free(path);
-		if (access(executable_path, X_OK) == 0 && stat(executable_path, &statbuf) == 0 && S_ISREG(statbuf.st_mode))
+		if (access(executable_path, X_OK) == 0 && stat(executable_path,
+				&statbuf) == 0 && S_ISREG(statbuf.st_mode))
 			return (executable_path);
 		free(executable_path);
 		path_parts++;
@@ -47,40 +52,56 @@ static char	*search_executable(char *program, char **path_parts) {
 	return (NULL);
 }
 
-static void	setup_redirections(Command cmd) {
-	if (cmd.input) {
-		int	in_fd;
-		in_fd = open(cmd.input, O_RDONLY);
-		if (in_fd < 0) {
-			perror("open input");
-			exit(EXIT_FAILURE);
-		}
-		if (dup2(in_fd, STDIN_FILENO) < 0) {
-			perror("dup2 input");
-			exit(EXIT_FAILURE);
-		}
-		close(in_fd);
-	}
+static void	setup_input(char *path)
+{
+	int	in_fd;
 
-	if (cmd.output) {
-		int	out_fd;
-		out_fd = open(cmd.output, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		if (out_fd < 0) {
-			perror("open output");
-			exit(EXIT_FAILURE);
-		}
-		if (dup2(out_fd, STDOUT_FILENO) < 0) {
-			perror("dup2 output");
-			exit(EXIT_FAILURE);
-		}
-		close(out_fd);
+	in_fd = open(path, O_RDONLY);
+	if (in_fd < 0)
+	{
+		perror("open input");
+		exit(EXIT_FAILURE);
 	}
+	if (dup2(in_fd, STDIN_FILENO) < 0)
+	{
+		perror("dup2 input");
+		exit(EXIT_FAILURE);
+	}
+	close(in_fd);
 }
 
-static void	execute_command(Command cmd) {
-	int	status;
+static void	setup_output(char *path)
+{
+	int	out_fd;
+
+	out_fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (out_fd < 0)
+	{
+		perror("open output");
+		exit(EXIT_FAILURE);
+	}
+	if (dup2(out_fd, STDOUT_FILENO) < 0)
+	{
+		perror("dup2 output");
+		exit(EXIT_FAILURE);
+	}
+	close(out_fd);
+}
+
+static void	setup_redirections(Command cmd)
+{
+	if (cmd.input)
+		setup_input(cmd.input);
+	if (cmd.output)
+		setup_output(cmd.output);
+}
+
+static void	execute_command(Command cmd)
+{
+	int		status;
 	char	**path_parts;
 	char	*executable_path;
+	pid_t	pid;
 
 	path_parts = ft_split(getenv("PATH"), ':');
 	executable_path = search_executable(cmd.command, path_parts);
@@ -88,12 +109,13 @@ static void	execute_command(Command cmd) {
 	{
 		write(STDERR_FILENO, "Command not found\n", 18);
 		free_matrix(path_parts);
-		return;
+		return ;
 	}
-	pid_t pid = fork();
-	if (pid == 0) {
-		setup_redirections(cmd);  // Set up redirections before executing
-		execve(executable_path, cmd.args, NULL);
+	pid = fork();
+	if (pid == 0)
+	{
+		setup_redirections(cmd); // Set up redirections before executing
+		execve(executable_path, cmd.args, NULL); // todo: get_envp() instead of NULL
 		perror("execve");
 		exit(EXIT_FAILURE);
 	}
@@ -109,6 +131,7 @@ void	execute_pipeline(Command *cmds, int n) {
 	int	i;
 	int	in_fd;
 	int	fd[2];
+
 	i = 0;
 	in_fd = 0;
 	while (i < n)
@@ -163,7 +186,7 @@ int	main()
 	Command	cmds[3] = {
 			{"ls", {"ls", "-l", "-a", NULL}, NULL, NULL},
 			{"grep", {"grep", "minishell", NULL}, NULL, NULL},
-			{"sort", {"sort", NULL}, NULL, NULL}
+			{"sort", {"sort", NULL}, NULL, "test.txt"}
 	};
 
 	execute_pipeline(cmds, 3);
