@@ -40,7 +40,9 @@ void	envp_add(const char *key, const char *value)
 	t_ht	*ht_envp;
 
 	ht_envp = get_envp(NULL);
+	set_allocator(PERM);
 	ht_add(ht_envp, (char *)key, (char *)value);
+	set_allocator(TEMP);
 }
 
 void	envp_delete(const char *key)

@@ -27,7 +27,7 @@ static int	get_key_len(const char *str)
 		return (2);
 	i = 1;
 	key_len = 2;
-	while (str[++i] && ft_isalnum(str[i]))
+	while (str[++i] && (ft_isalnum(str[i]) || str[i] == '_'))
 		key_len++;
 	return (key_len);
 }
