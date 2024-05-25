@@ -20,7 +20,8 @@ FILES :=			minishell\
 					tokenize\
 					expand_env_vars\
 					globbing\
-					form_words
+					form_words\
+					pda_parse
 
 LIB :=				$(LIB_PATH)libft.a
 
