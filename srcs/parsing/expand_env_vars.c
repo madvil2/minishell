@@ -17,7 +17,7 @@ static int	get_key_len(const char *str)
 	int	i;
 	int	key_len;
 
-	if (str[0] != '$')//"ABC"
+	if (str[0] != EXP_REPLACE)//"ABC"
 		return (1);
 	if (str[1] == 0)//"$"
 		return (1);

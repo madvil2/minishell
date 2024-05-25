@@ -12,7 +12,7 @@
 
 #include "../../includes/minishell.h"
 
-static char	*ft_replace_char(char *str, char find, char replace)
+char	*ft_replace_char(char *str, char find, char replace)
 {
 	char	*res;
 	int		i;
@@ -54,7 +54,7 @@ void	split_words(t_deque **tokens)
 			{
 				new_token = ft_calloc(1, sizeof(t_token));
 				new_token->type = TOK_WORD;
-				new_token->str = ft_replace_char(*new_words, '\t', ' ');
+				new_token->str = ft_replace_char(*new_words, SPACE_REPLACE, ' ');
 				if (new_token->str[0])
 					deque_push_node_left(new_tokens, deque_node_init(new_token));
 				new_words++;
@@ -98,7 +98,7 @@ void	merge_words(t_deque **tokens)
 				|| travel->as_token->type == TOK_SQUOTE_STR || travel->as_token->type == TOK_WORD))
 			{
 				if (travel->as_token->type != TOK_WORD)
-					new_str = ft_strjoin(new_str, ft_replace_char(travel->as_token->str, ' ', '\t'));
+					new_str = ft_strjoin(new_str, ft_replace_char(travel->as_token->str, ' ', SPACE_REPLACE));
 				else
 					new_str = ft_strjoin(new_str, travel->as_token->str);
 				travel = travel->next;

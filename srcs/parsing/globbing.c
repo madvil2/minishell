@@ -93,22 +93,22 @@ static int	check_pattern(const char *str, const char *pattern)
 	char	*new_pattern;
 
 	new_str = ft_calloc(ft_strlen(str) + 3, sizeof(char));
-	new_str[0] = '[';
-	new_str[ft_strlen(str) + 1] = ']';
+	new_str[0] = GLOB_START;
+	new_str[ft_strlen(str) + 1] = GLOB_END;
 	ft_memcpy(new_str + 1, str, ft_strlen(str));
 	new_pattern = ft_calloc(ft_strlen(pattern) + 3, sizeof(char));
-	new_pattern[0] = '[';
-	new_pattern[ft_strlen(pattern) + 1] = ']';
+	new_pattern[0] = GLOB_START;
+	new_pattern[ft_strlen(pattern) + 1] = GLOB_END;
 	ft_memcpy(new_pattern + 1, pattern, ft_strlen(pattern));
 	i = 0;
 	while (1)
 	{
-		while (new_pattern[i] == '*')
+		while (new_pattern[i] == GLOB_REPLACE)
 			i++;
 		if (!new_pattern[i])
 			break ;
 		j = i;
-		while (new_pattern[j] && new_pattern[j] != '*')
+		while (new_pattern[j] && new_pattern[j] != GLOB_REPLACE)
 			j++;
 		set_allocator(TEMP);
 //		printf("searching for %s in %s\n", ft_strndup(new_pattern + i, j - i), new_str);
@@ -131,7 +131,7 @@ static char	*glob_word(char *word)
 	t_deque_node	*travel;
 
 	set_allocator(TEMP);
-	if (!ft_strchr(word, '*'))
+	if (!ft_strchr(word, GLOB_REPLACE))
 		return (ft_strdup(word));
 	filenames = deque_init();
 	dir = opendir(".");

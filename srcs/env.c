@@ -57,7 +57,7 @@ char	*envp_find(const char *key)
 {
 	t_ht	*ht_envp;
 
-	if (key[0] != '$')
+	if (key[0] != EXP_REPLACE)
 		return (ft_strdup(key));
 	if (!key[1])
 		return (ft_strdup("$"));

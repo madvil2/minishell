@@ -108,46 +108,49 @@ static void	print_tokens(t_deque *tokens)
 	while (++i < tokens->size)
 	{
 		if (travel->as_token->type == TOK_AND)
-			printf("%s \"%s\"\n", STR_TOK_AND, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_AND, travel->as_token->str);
 		else if (travel->as_token->type == TOK_APPEND)
-			printf("%s \"%s\"\n", STR_TOK_APPEND, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_APPEND, travel->as_token->str);
 		else if (travel->as_token->type == TOK_DQUOTE_STR)
-			printf("%s \"%s\"\n", STR_TOK_DQUOTE_STR, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_DQUOTE_STR, travel->as_token->str);
 		else if (travel->as_token->type == TOK_EOL)
-			printf("%s \"%s\"\n", STR_TOK_EOL, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_EOL, travel->as_token->str);
 		else if (travel->as_token->type == TOK_EPSILON)
-			printf("%s \"%s\"\n", STR_TOK_EPSILON, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_EPSILON, travel->as_token->str);
 		else if (travel->as_token->type == TOK_ERROR)
-			printf("%s \"%s\"\n", STR_TOK_ERROR, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_ERROR, travel->as_token->str);
 		else if (travel->as_token->type == TOK_HEREDOC)
-			printf("%s \"%s\"\n", STR_TOK_HEREDOC, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_HEREDOC, travel->as_token->str);
 		else if (travel->as_token->type == TOK_INPUT)
-			printf("%s \"%s\"\n", STR_TOK_INPUT, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_INPUT, travel->as_token->str);
 		else if (travel->as_token->type == TOK_EPSILON)
-			printf("%s \"%s\"\n", STR_TOK_EPSILON, travel->as_token->str);
+			printf("%s \"%s\" ", STR_TOK_EPSILON, travel->as_token->str);
 		else if (travel->as_token->type == TOK_L_PAREN)
-			printf("%s \"%s\"\n", STR_TOK_L_PAREN, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_L_PAREN, travel->as_token->str);
 		else if (travel->as_token->type == TOK_R_PAREN)
-			printf("%s \"%s\"\n", STR_TOK_R_PAREN, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_R_PAREN, travel->as_token->str);
 		else if (travel->as_token->type == TOK_OR)
-			printf("%s \"%s\"\n", STR_TOK_OR, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_OR, travel->as_token->str);
 		else if (travel->as_token->type == TOK_OVERWRITE)
-			printf("%s \"%s\"\n", STR_TOK_OVERWRITE, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_OVERWRITE, travel->as_token->str);
 		else if (travel->as_token->type == TOK_SQUOTE_STR)
-			printf("%s \"%s\"\n", STR_TOK_SQUOTE_STR, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_SQUOTE_STR, travel->as_token->str);
 		else if (travel->as_token->type == TOK_PIPE)
-			printf("%s \"%s\"\n", STR_TOK_PIPE, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_PIPE, travel->as_token->str);
 		else if (travel->as_token->type == TOK_WORD)
-			printf("%s \"%s\"\n", STR_TOK_WORD, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_WORD, travel->as_token->str);
 		else
-			printf("%s \"%s\"\n", STR_TOK_UNKNOWN, travel->as_token->str);
+			ft_printf("%s \"%s\" ", STR_TOK_UNKNOWN, travel->as_token->str);
 		travel = travel->next;
 	}
+	ft_printf("\n");
 }
 
 t_deque	*tokenize(const char *str)
 {
-	t_deque *tokens;
+	t_deque	*tokens;
+	int				i;
+	t_deque_node	*travel;
 
 	set_allocator(TEMP);
 	tokens = deque_init();
@@ -165,12 +168,22 @@ t_deque	*tokenize(const char *str)
 //		while (ft_isspace(*str))
 //			str++;
 	}
+	travel = tokens->head;
+	i = -1;
+	while (++i < tokens->size)
+	{
+		if (travel->as_token->type == TOK_WORD || travel->as_token->type == TOK_DQUOTE_STR)
+			travel->as_token->str = ft_replace_char(travel->as_token->str, '$', EXP_REPLACE);
+		if (travel->as_token->type == TOK_WORD)
+			travel->as_token->str = ft_replace_char(travel->as_token->str, '*', GLOB_REPLACE);
+		travel = travel->next;
+	}
 //	printf("Before:\n");
 //	print_tokens(tokens);
-	expand_env_vars(tokens);
+//	expand_env_vars(tokens);
 //	printf("After expanding:\n");
 //	print_tokens(tokens);
-	globbing(tokens);
+//	globbing(tokens);
 //	printf("After globbing:\n");
 //	print_tokens(tokens);
 	merge_words(&tokens);
@@ -185,12 +198,17 @@ t_deque	*tokenize(const char *str)
 int	main(int argc, char **argv, char **envp)
 {
 	t_deque	*tokens;
+	t_tree *ptree;
 
 	if ((argc && argv))
 		argc = 0;
 	get_envp(envp);
 //	tokens = tokenize("$USER *l* echo \"$HOME=$PATH a\" | print hui && 'abo*bich&|||<><ds'$");
-	tokens = tokenize("echo *fi* \"hello $GIT_SSH_COMMAND * world\"'bla * $GIT_SSH_COMMAND'$GIT_SSH_COMMAND\"another one\"$GIT_SSH_COMMAND bruh $GIT_SSH_COMMAND| grep ^h && (hostname | grep bla ) | megapipe ||printf buh");
+//	tokens = tokenize("echo *fi* \"hello $GIT_SSH_COMMAND * world\"'bla * $GIT_SSH_COMMAND'$GIT_SSH_COMMAND\"another one\"$GIT_SSH_COMMAND bruh $GIT_SSH_COMMAND| grep ^h && (hostname | grep bla ) | megapipe ||printf buh");
+	tokens = tokenize("echo a | cat b | grep $C | \"loh\" *d && | (export L=sd) || <<1 | >>2 | <3 && 'ti loh' || printf \"buh\"");
+//	tokens = tokenize("echo $");
+	print_tokens(tokens);
 	if (tokens)
 		argc = 0;
+	ptree = pda_parse(tokens);
 }
