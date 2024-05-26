@@ -28,7 +28,10 @@ static t_nonterm	*nt_init(t_nonterm_type type, t_token *token)
 
 	res = malloc(sizeof(t_nonterm));
 	res->type = type;
-	res->token = token;
+	if (token)
+		res->token = token_init(token->type, token->str);
+	else
+		res->token = NULL;
 	return (res);
 }
 
@@ -114,41 +117,6 @@ static t_deque **rules_init(void)
 	return (res);
 }
 
-//static void	print_rules(t_deque **rules)
-//{
-//	int				i;
-//	int				j;
-//	t_deque_node	*travel;
-//
-//	i = -1;
-//	while (++i < NB_RULES)
-//	{
-//		j = -1;
-//		travel = rules[i]->head;
-//		while (++j < rules[i]->size)
-//		{
-//			printf("%d ", travel->as_nt->type);
-//			if (travel->as_nt->token)
-//				printf("%s ", travel->as_nt->token->str);
-//			travel = travel->next;
-//		}
-//		printf("\n");
-//	}
-//}
-
-//|                     | TOK_EOL | TOK_AND | TOK_OR | TOK_PIPE | TOK_L_PAREN | TOK_R_PAREN | TOK_WORD | TOK_OVERWRITE | TOK_APPEND | TOK_INPUT | TOK_HEREDOC
-//|---------------------|---------|---------|--------|----------|-------------|-------------|----------|---------------|------------|-----------|-------------
-//|S                    |    0    |         |        |          |      0      |             |    0     |       0       |     0      |     0     |      0
-//|COMPLETE_COMMAND     |    1    |         |        |          |      2      |             |    2     |       2       |     2      |     2     |      2
-//|AND_OR_SEQUENCE      |         |         |        |          |      3      |             |    3     |       3       |     3      |     3     |      3
-//|AND_OR_SEQUENCE_TAIL |    4    |    5    |    5   |          |             |      4      |          |               |            |           |
-//|AND_OR               |         |    6    |    7   |          |             |             |          |               |            |           |
-//|PIPE_SEQUENCE        |         |         |        |          |      8      |             |    8     |       8       |     8      |     8     |      8
-//|PIPE_SEQUENCE_TAIL   |    9    |    9    |    9   |    10    |             |      9      |          |               |            |           |
-//|SIMPLE_COMMAND       |         |         |        |          |     11      |             |    12    |      12       |    12      |    12     |     12
-//|SIMPLE_COMMAND_TAIL  |    14   |   14    |   14   |    14    |             |     14      |    13    |      13       |    13      |    13     |     13
-//|IO_REDIRECT          |         |         |        |          |             |             |    15    |      17       |    19      |    16     |     18
-
 static t_deque *get_rule(t_nonterm_type nt, t_token_type token)
 {
 	static t_deque	**rules;
@@ -171,107 +139,64 @@ static t_deque *get_rule(t_nonterm_type nt, t_token_type token)
 	return (rules[parsing_table[nt][token]]);
 }
 
-static void	print_stack(t_deque *stack)
+static void	ptree_add_node(t_tree **root, t_deque *rule)
 {
+	static t_deque	*queue;
+	t_deque_node	*deque_travel;
+	t_tree			*tree_travel;
 	int				i;
-	t_deque_node	*travel;
-	char			*str;
 
-	ft_printf("STACK: ");
-	i = -1;
-	travel = stack->head;
-	while (++i < stack->size)
+	if (!(*root))
 	{
-		if (travel->as_nt->type == NT_S)
-			str = STR_NT_S;
-		if (travel->as_nt->type == NT_AND_OR)
-			str = STR_NT_AND_OR;
-		if (travel->as_nt->type == NT_AND_OR_SEQUENCE)
-			str = STR_NT_AND_OR_SEQUENCE;
-		if (travel->as_nt->type == NT_AND_OR_SEQUENCE_TAIL)
-			str = STR_NT_AND_OR_SEQUENCE_TAIL;
-		if (travel->as_nt->type == NT_COMPLETE_COMMAND)
-			str = STR_NT_COMPLETE_COMMAND;
-		if (travel->as_nt->type == NT_IO_REDIRECT)
-			str = STR_NT_IO_REDIRECT;
-		if (travel->as_nt->type == NT_PIPE_SEQUENCE)
-			str = STR_NT_PIPE_SEQUENCE;
-		if (travel->as_nt->type == NT_PIPE_SEQUENCE_TAIL)
-			str = STR_NT_PIPE_SEQUENCE_TAIL;
-		if (travel->as_nt->type == NT_SIMPLE_COMMAND)
-			str = STR_NT_SIMPLE_COMMAND;
-		if (travel->as_nt->type == NT_SIMPLE_COMMAND_TAIL)
-			str = STR_NT_SIMPLE_COMMAND_TAIL;
-		if (travel->as_nt->type == NT_TERMINAL)
-			str = travel->as_nt->token->str;
-		ft_printf("%s - ", str);
-		travel = travel->next;
+		queue = deque_init();
+		*root = tree_node_init(nt_init(NT_S, NULL));
+		deque_push_node_right(queue, deque_node_init(*root));
+		print_queue(queue);
+		ft_printf("\n");
+		return ;
 	}
-	ft_printf("\n");
-}
-
-static void	print_input(t_deque *tokens)
-{
-	int i = -1;
-	t_deque_node *travel;
-
-	ft_printf("INPUT: ");
-	travel = tokens->head;
-	while (++i < tokens->size)
+	if (queue->head->as_tree->as_nt->type == NT_TERMINAL)
 	{
-		if (travel->as_token->type == TOK_AND)
-			ft_printf("%s ", STR_TOK_AND);
-		else if (travel->as_token->type == TOK_APPEND)
-			ft_printf("%s ", STR_TOK_APPEND);
-		else if (travel->as_token->type == TOK_DQUOTE_STR)
-			ft_printf("%s ", STR_TOK_DQUOTE_STR);
-		else if (travel->as_token->type == TOK_EOL)
-			ft_printf("%s ", STR_TOK_EOL);
-		else if (travel->as_token->type == TOK_EPSILON)
-			ft_printf("%s ", STR_TOK_EPSILON);
-		else if (travel->as_token->type == TOK_ERROR)
-			ft_printf("%s ", STR_TOK_ERROR);
-		else if (travel->as_token->type == TOK_HEREDOC)
-			ft_printf("%s ", STR_TOK_HEREDOC);
-		else if (travel->as_token->type == TOK_INPUT)
-			ft_printf("%s ", STR_TOK_INPUT);
-		else if (travel->as_token->type == TOK_EPSILON)
-			ft_printf("%s ", STR_TOK_EPSILON);
-		else if (travel->as_token->type == TOK_L_PAREN)
-			ft_printf("%s ", STR_TOK_L_PAREN);
-		else if (travel->as_token->type == TOK_R_PAREN)
-			ft_printf("%s ", STR_TOK_R_PAREN);
-		else if (travel->as_token->type == TOK_OR)
-			ft_printf("%s ", STR_TOK_OR);
-		else if (travel->as_token->type == TOK_OVERWRITE)
-			ft_printf("%s ", STR_TOK_OVERWRITE);
-		else if (travel->as_token->type == TOK_SQUOTE_STR)
-			ft_printf("%s ", STR_TOK_SQUOTE_STR);
-		else if (travel->as_token->type == TOK_PIPE)
-			ft_printf("%s ", STR_TOK_PIPE);
-		else if (travel->as_token->type == TOK_WORD)
-			ft_printf("%s ", STR_TOK_WORD);
-		else
-			ft_printf("%s ", STR_TOK_UNKNOWN);
-		travel = travel->next;
+		deque_pop_right(queue);
+		print_queue(queue);
+		ft_printf("\n");
+		return ;
 	}
+	i = 0;
+	deque_travel = rule->head->next;
+	while (++i < rule->size)
+	{
+		tree_add_child(&queue->head->as_tree, nt_init(deque_travel->as_nt->type, deque_travel->as_nt->token));
+		deque_travel = deque_travel->next;
+	}
+	tree_travel = queue->head->as_tree;
+	deque_pop_right(queue);
+	i = 0;
+	deque_travel = tree_travel->child->head->prev;
+	while (++i < rule->size)
+	{
+		deque_push_node_right(queue, deque_node_init((void *)deque_travel->as_tree));
+		deque_travel = deque_travel->prev;
+	}
+	print_queue(queue);
 	ft_printf("\n");
 }
 
 t_tree	*pda_parse(t_deque *input)
 {
-//	t_tree	*root;
-//	t_tree	*travel;
+	t_tree			*root;
 	t_deque			*stack;
 	t_deque			*rule;
 	t_deque_node	*travel;
 	int		i;
 
+	root = NULL;
 	stack = deque_init();
 	deque_push_node_left(input, deque_node_init(token_init(TOK_EOL, "$")));
 	deque_push_node_left(stack, deque_node_init(nt_init(NT_S, NULL)));
 	print_stack(stack);
 	print_input(input);
+	ptree_add_node(&root, NULL);
 	while (stack->size || input->size)
 	{
 		if (stack->head->as_nt->type == NT_TERMINAL && stack->head->as_nt->token->type == TOK_EPSILON)
@@ -313,6 +238,8 @@ t_tree	*pda_parse(t_deque *input)
 		}
 		print_stack(stack);
 		print_input(input);
+		ptree_add_node(&root, rule);
 	}
-	return (NULL);
+	print_tree(root, 0);
+	return (root);
 }

@@ -164,4 +164,12 @@ void	split_words(t_deque **tokens);
 //pda_parse.c
 t_tree	*pda_parse(t_deque *input);
 
+//utils.c
+void	print_tree(t_tree *root, int depth);
+void	print_queue(t_deque	*queue);
+void	print_tokens(t_deque *tokens);
+void	print_input(t_deque *tokens);
+void	print_stack(t_deque *stack);
+void	print_rules(t_deque **rules);
+
 #endif

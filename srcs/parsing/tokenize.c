@@ -99,53 +99,6 @@ static bool	tokenize_word(const char **str, t_deque *tokens)
 	return (TRUE);
 }
 
-static void	print_tokens(t_deque *tokens)
-{
-	int i = -1;
-	t_deque_node *travel;
-
-	travel = tokens->head;
-	while (++i < tokens->size)
-	{
-		if (travel->as_token->type == TOK_AND)
-			ft_printf("%s \"%s\" ", STR_TOK_AND, travel->as_token->str);
-		else if (travel->as_token->type == TOK_APPEND)
-			ft_printf("%s \"%s\" ", STR_TOK_APPEND, travel->as_token->str);
-		else if (travel->as_token->type == TOK_DQUOTE_STR)
-			ft_printf("%s \"%s\" ", STR_TOK_DQUOTE_STR, travel->as_token->str);
-		else if (travel->as_token->type == TOK_EOL)
-			ft_printf("%s \"%s\" ", STR_TOK_EOL, travel->as_token->str);
-		else if (travel->as_token->type == TOK_EPSILON)
-			ft_printf("%s \"%s\" ", STR_TOK_EPSILON, travel->as_token->str);
-		else if (travel->as_token->type == TOK_ERROR)
-			ft_printf("%s \"%s\" ", STR_TOK_ERROR, travel->as_token->str);
-		else if (travel->as_token->type == TOK_HEREDOC)
-			ft_printf("%s \"%s\" ", STR_TOK_HEREDOC, travel->as_token->str);
-		else if (travel->as_token->type == TOK_INPUT)
-			ft_printf("%s \"%s\" ", STR_TOK_INPUT, travel->as_token->str);
-		else if (travel->as_token->type == TOK_EPSILON)
-			printf("%s \"%s\" ", STR_TOK_EPSILON, travel->as_token->str);
-		else if (travel->as_token->type == TOK_L_PAREN)
-			ft_printf("%s \"%s\" ", STR_TOK_L_PAREN, travel->as_token->str);
-		else if (travel->as_token->type == TOK_R_PAREN)
-			ft_printf("%s \"%s\" ", STR_TOK_R_PAREN, travel->as_token->str);
-		else if (travel->as_token->type == TOK_OR)
-			ft_printf("%s \"%s\" ", STR_TOK_OR, travel->as_token->str);
-		else if (travel->as_token->type == TOK_OVERWRITE)
-			ft_printf("%s \"%s\" ", STR_TOK_OVERWRITE, travel->as_token->str);
-		else if (travel->as_token->type == TOK_SQUOTE_STR)
-			ft_printf("%s \"%s\" ", STR_TOK_SQUOTE_STR, travel->as_token->str);
-		else if (travel->as_token->type == TOK_PIPE)
-			ft_printf("%s \"%s\" ", STR_TOK_PIPE, travel->as_token->str);
-		else if (travel->as_token->type == TOK_WORD)
-			ft_printf("%s \"%s\" ", STR_TOK_WORD, travel->as_token->str);
-		else
-			ft_printf("%s \"%s\" ", STR_TOK_UNKNOWN, travel->as_token->str);
-		travel = travel->next;
-	}
-	ft_printf("\n");
-}
-
 t_deque	*tokenize(const char *str)
 {
 	t_deque	*tokens;
@@ -205,7 +158,8 @@ int	main(int argc, char **argv, char **envp)
 	get_envp(envp);
 //	tokens = tokenize("$USER *l* echo \"$HOME=$PATH a\" | print hui && 'abo*bich&|||<><ds'$");
 //	tokens = tokenize("echo *fi* \"hello $GIT_SSH_COMMAND * world\"'bla * $GIT_SSH_COMMAND'$GIT_SSH_COMMAND\"another one\"$GIT_SSH_COMMAND bruh $GIT_SSH_COMMAND| grep ^h && (hostname | grep bla ) | megapipe ||printf buh");
-	tokens = tokenize("echo a | cat b | grep $C | \"loh\" *d && | (export L=sd) || <<1 | >>2 | <3 && 'ti loh' || printf \"buh\"");
+//	tokens = tokenize("echo a | cat b | grep $C | \"loh\" *d && (export L=sd) || <<1 | >>2 | <3 && 'ti loh' || printf \"buh\"");
+	tokens = tokenize("a | b || c | d");
 //	tokens = tokenize("echo $");
 	print_tokens(tokens);
 	if (tokens)

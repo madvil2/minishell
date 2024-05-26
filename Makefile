@@ -21,7 +21,8 @@ FILES :=			minishell\
 					expand_env_vars\
 					globbing\
 					form_words\
-					pda_parse
+					pda_parse\
+					utils
 
 LIB :=				$(LIB_PATH)libft.a
 
