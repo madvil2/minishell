@@ -12,7 +12,7 @@
 
 #include "../../includes/minishell.h"
 
-static t_token		*token_init(t_token_type type, char *str)
+t_token		*token_init(t_token_type type, char *str)
 {
 	t_token	*res;
 
@@ -22,7 +22,7 @@ static t_token		*token_init(t_token_type type, char *str)
 	return (res);
 }
 
-static t_nonterm	*nt_init(t_nonterm_type type, t_token *token)
+t_nonterm	*nt_init(t_nonterm_type type, t_token *token)
 {
 	t_nonterm	*res;
 
@@ -139,7 +139,7 @@ static t_deque *get_rule(t_nonterm_type nt, t_token_type token)
 	return (rules[parsing_table[nt][token]]);
 }
 
-static void	ptree_add_node(t_tree **root, t_deque *rule)
+static void	ptree_add_node(t_tree **root, t_deque *rule, char *str_token)//
 {
 	static t_deque	*queue;
 	t_deque_node	*deque_travel;
@@ -155,8 +155,9 @@ static void	ptree_add_node(t_tree **root, t_deque *rule)
 		ft_printf("\n");
 		return ;
 	}
-	if (queue->head->as_tree->as_nt->type == NT_TERMINAL)
+	if (queue->head->as_tree->as_nt->type == NT_TERMINAL && str_token && !rule)
 	{
+		queue->head->as_tree->as_nt->token->str = ft_strdup(str_token);
 		deque_pop_right(queue);
 		print_queue(queue);
 		ft_printf("\n");
@@ -196,15 +197,21 @@ t_tree	*pda_parse(t_deque *input)
 	deque_push_node_left(stack, deque_node_init(nt_init(NT_S, NULL)));
 	print_stack(stack);
 	print_input(input);
-	ptree_add_node(&root, NULL);
+	ptree_add_node(&root, NULL, NULL);
 	while (stack->size || input->size)
 	{
 		if (stack->head->as_nt->type == NT_TERMINAL && stack->head->as_nt->token->type == TOK_EPSILON)
+		{
 			deque_pop_right(stack);
+			ptree_add_node(&root, NULL, "''");
+		}
 		else if (stack->head->as_nt->type == NT_TERMINAL && stack->head->as_nt->token->type != TOK_EPSILON)
 		{
 			if (stack->head->as_nt->token->type == input->head->as_token->type)
 			{
+				if (input->head->as_token->type == TOK_WORD)
+					ft_printf("HERE WORD\n");
+				ptree_add_node(&root, NULL, input->head->as_token->str);
 				deque_pop_right(input);
 				deque_pop_right(stack);
 			}
@@ -235,11 +242,10 @@ t_tree	*pda_parse(t_deque *input)
 				deque_push_node_right(stack, deque_node_init(travel->as_nt));
 				travel = travel->prev;
 			}
+			ptree_add_node(&root, rule, NULL);
 		}
 		print_stack(stack);
 		print_input(input);
-		ptree_add_node(&root, rule);
 	}
-	print_tree(root, 0);
 	return (root);
 }

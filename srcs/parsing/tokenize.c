@@ -131,19 +131,19 @@ t_deque	*tokenize(const char *str)
 			travel->as_token->str = ft_replace_char(travel->as_token->str, '*', GLOB_REPLACE);
 		travel = travel->next;
 	}
-//	printf("Before:\n");
+//	ft_printf("Before:\n");
 //	print_tokens(tokens);
 //	expand_env_vars(tokens);
-//	printf("After expanding:\n");
+//	ft_printf("After expanding:\n");
 //	print_tokens(tokens);
 //	globbing(tokens);
-//	printf("After globbing:\n");
+//	ft_printf("After globbing:\n");
 //	print_tokens(tokens);
 	merge_words(&tokens);
-//	printf("After merge:\n");
+//	ft_printf("After merge:\n");
 //	print_tokens(tokens);
 	split_words(&tokens);
-//	printf("After splitting:\n");
+//	ft_printf("After splitting:\n");
 //	print_tokens(tokens);
 	return (tokens);
 }
@@ -159,10 +159,18 @@ int	main(int argc, char **argv, char **envp)
 //	tokens = tokenize("$USER *l* echo \"$HOME=$PATH a\" | print hui && 'abo*bich&|||<><ds'$");
 //	tokens = tokenize("echo *fi* \"hello $GIT_SSH_COMMAND * world\"'bla * $GIT_SSH_COMMAND'$GIT_SSH_COMMAND\"another one\"$GIT_SSH_COMMAND bruh $GIT_SSH_COMMAND| grep ^h && (hostname | grep bla ) | megapipe ||printf buh");
 //	tokens = tokenize("echo a | cat b | grep $C | \"loh\" *d && (export L=sd) || <<1 | >>2 | <3 && 'ti loh' || printf \"buh\"");
+//	tokens = tokenize("a | b || (a | b && c | d) | c | d");
 	tokens = tokenize("a | b || c | d");
 //	tokens = tokenize("echo $");
 	print_tokens(tokens);
 	if (tokens)
 		argc = 0;
 	ptree = pda_parse(tokens);
+	ft_printf("after parsing:\n");
+	print_tree(ptree, 0);
+	ft_printf("\n");
+	ft_printf("after flattening:\n");
+	ptree = ptree_flattening(ptree);
+	print_tree(ptree, 0);
+	ft_printf("\n");
 }

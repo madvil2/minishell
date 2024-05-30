@@ -190,7 +190,6 @@ void	print_input(t_deque *tokens)
 	ft_printf("\n");
 }
 
-
 void	print_stack(t_deque *stack)
 {
 	int				i;
@@ -230,6 +229,36 @@ void	print_stack(t_deque *stack)
 	ft_printf("\n");
 }
 
+char	*nt_to_str(t_nonterm_type type)
+{
+	char *str;
+
+	str = NULL;
+	if (type == NT_S)
+		str = STR_NT_S;
+	if (type == NT_AND_OR)
+		str = STR_NT_AND_OR;
+	if (type == NT_AND_OR_SEQUENCE)
+		str = STR_NT_AND_OR_SEQUENCE;
+	if (type == NT_AND_OR_SEQUENCE_TAIL)
+		str = STR_NT_AND_OR_SEQUENCE_TAIL;
+	if (type == NT_COMPLETE_COMMAND)
+		str = STR_NT_COMPLETE_COMMAND;
+	if (type == NT_IO_REDIRECT)
+		str = STR_NT_IO_REDIRECT;
+	if (type == NT_PIPE_SEQUENCE)
+		str = STR_NT_PIPE_SEQUENCE;
+	if (type == NT_PIPE_SEQUENCE_TAIL)
+		str = STR_NT_PIPE_SEQUENCE_TAIL;
+	if (type == NT_SIMPLE_COMMAND)
+		str = STR_NT_SIMPLE_COMMAND;
+	if (type == NT_SIMPLE_COMMAND_TAIL)
+		str = STR_NT_SIMPLE_COMMAND_TAIL;
+	if (type == NT_TERMINAL)
+		str = STR_NT_TERMINAL;
+	return (ft_strdup(str));
+}
+
 void	print_rules(t_deque **rules)
 {
 	int				i;
@@ -243,9 +272,9 @@ void	print_rules(t_deque **rules)
 		travel = rules[i]->head;
 		while (++j < rules[i]->size)
 		{
-			printf("%d ", travel->as_nt->type);
+			ft_printf("%d ", travel->as_nt->type);
 			if (travel->as_nt->token)
-				printf("%s ", travel->as_nt->token->str);
+				ft_printf("%s ", travel->as_nt->token->str);
 			travel = travel->next;
 		}
 		printf("\n");

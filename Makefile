@@ -22,7 +22,8 @@ FILES :=			minishell\
 					globbing\
 					form_words\
 					pda_parse\
-					utils
+					utils\
+					flattening
 
 LIB :=				$(LIB_PATH)libft.a
 

@@ -163,6 +163,12 @@ void	split_words(t_deque **tokens);
 
 //pda_parse.c
 t_tree	*pda_parse(t_deque *input);
+t_token		*token_init(t_token_type type, char *str);
+t_nonterm	*nt_init(t_nonterm_type type, t_token *token);
+
+//flattening.c
+t_tree	*ptree_flattening(t_tree *root);
+t_tree	*ptree_cleanup(t_tree *root);
 
 //utils.c
 void	print_tree(t_tree *root, int depth);
@@ -170,6 +176,7 @@ void	print_queue(t_deque	*queue);
 void	print_tokens(t_deque *tokens);
 void	print_input(t_deque *tokens);
 void	print_stack(t_deque *stack);
+char	*nt_to_str(t_nonterm_type type);
 void	print_rules(t_deque **rules);
 
 #endif
