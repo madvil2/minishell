@@ -140,17 +140,20 @@ t_deque	*tokenize(const char *str)
 //	ft_printf("After globbing:\n");
 //	print_tokens(tokens);
 	merge_words(&tokens);
+//	ft_printf("After merge:\n");
+//	print_tokens(tokens);
+	travel = tokens->head;
 	i = 0;
 	while (++i < tokens->size)
 	{
-		if (travel->as_token->type == TOK_HEREDOC || travel->next->as_token->type == TOK_WORD)
+		if (travel->as_token->type == TOK_HEREDOC && travel->next->as_token->type == TOK_WORD)
 		{
-			travel->next->as_token->str = ft_replace_char(travel->as_token->str, EXP_REPLACE, '$');
-			travel->next->as_token->str = ft_replace_char(travel->as_token->str, GLOB_REPLACE, '*');
+			travel->next->as_token->str = ft_replace_char(travel->next->as_token->str, EXP_REPLACE, '$');
+			travel->next->as_token->str = ft_replace_char(travel->next->as_token->str, GLOB_REPLACE, '*');
 		}
 		travel = travel->next;
 	}
-//	ft_printf("After merge:\n");
+//	ft_printf("After heredoc_change:\n");
 //	print_tokens(tokens);
 	split_words(&tokens);
 //	ft_printf("After splitting:\n");
@@ -175,6 +178,7 @@ int	main(int argc, char **argv, char **envp)
 	print_tokens(tokens);
 	if (tokens)
 		argc = 0;
+	exit(0);
 	ptree = pda_parse(tokens);
 	ft_printf("after parsing:\n");
 	print_tree(ptree, 0);
