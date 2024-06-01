@@ -143,6 +143,9 @@ t_deque	*tokenize(const char *str)
 //	ft_printf("After merge:\n");
 //	print_tokens(tokens);
 	travel = tokens->head;
+	split_words(&tokens);
+//	ft_printf("After splitting:\n");
+//	print_tokens(tokens);
 	i = 0;
 	while (++i < tokens->size)
 	{
@@ -154,9 +157,6 @@ t_deque	*tokenize(const char *str)
 		travel = travel->next;
 	}
 //	ft_printf("After heredoc_change:\n");
-//	print_tokens(tokens);
-	split_words(&tokens);
-//	ft_printf("After splitting:\n");
 //	print_tokens(tokens);
 	return (tokens);
 }
@@ -171,7 +171,7 @@ int	main(int argc, char **argv, char **envp)
 	get_envp(envp);
 //	tokens = tokenize("$USER *l* echo \"$HOME=$PATH a\" | print hui && 'abo*bich&|||<><ds'$");
 //	tokens = tokenize("echo *fi* \"hello $GIT_SSH_COMMAND * world\"'bla * $GIT_SSH_COMMAND'$GIT_SSH_COMMAND\"another one\"$GIT_SSH_COMMAND bruh $GIT_SSH_COMMAND| grep ^h && (hostname | grep bla ) | megapipe ||printf buh");
-	tokens = tokenize("echo a | cat b | grep $HOME | \"loh\" in* && (export L=sd) || <<$VAR* | >>2 | <3 && 'ti loh' || printf \"buh\"");
+	tokens = tokenize("echo a | cat b | grep $HOME | \"loh\" in* && (export L=sd) && <<$VAR* | >>2 | <3 && 'ti loh' || printf \"buh\"");
 //	tokens = tokenize("a | b || (a | b && c | d) | c | d");
 //	tokens = tokenize("a | b || c | d");
 //	tokens = tokenize("echo $");
