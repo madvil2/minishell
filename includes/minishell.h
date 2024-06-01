@@ -179,4 +179,10 @@ void	print_stack(t_deque *stack);
 char	*nt_to_str(t_nonterm_type type);
 void	print_rules(t_deque **rules);
 
+//execute_ptree.c
+int	execute_simple_command(t_tree *root);
+int	execute_pipe_sequence(t_tree *root);
+int	execute_and_or_sequence(t_tree *root);
+int	execute_complete_command(t_tree *root);
+
 #endif

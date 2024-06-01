@@ -119,8 +119,6 @@ void	print_tokens(t_deque *tokens)
 			ft_printf("%s \"%s\" ", STR_TOK_HEREDOC, travel->as_token->str);
 		else if (travel->as_token->type == TOK_INPUT)
 			ft_printf("%s \"%s\" ", STR_TOK_INPUT, travel->as_token->str);
-		else if (travel->as_token->type == TOK_EPSILON)
-			printf("%s \"%s\" ", STR_TOK_EPSILON, travel->as_token->str);
 		else if (travel->as_token->type == TOK_L_PAREN)
 			ft_printf("%s \"%s\" ", STR_TOK_L_PAREN, travel->as_token->str);
 		else if (travel->as_token->type == TOK_R_PAREN)

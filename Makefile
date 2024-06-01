@@ -23,7 +23,8 @@ FILES :=			minishell\
 					form_words\
 					pda_parse\
 					utils\
-					flattening
+					flattening\
+					execute_ptree
 
 LIB :=				$(LIB_PATH)libft.a
 

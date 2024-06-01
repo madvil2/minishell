@@ -213,7 +213,7 @@ void	globbing(t_deque *tokens)
 			while (words[++j])
 				deque_push_node_left(res_words, deque_node_init(glob_word(words[j])));
 			travel->as_token->str = join_globbed_str(res_words, travel->as_token->str);
-			travel = travel->next;
 		}
+		travel = travel->next;
 	}
 }

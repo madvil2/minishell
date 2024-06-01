@@ -171,14 +171,13 @@ int	main(int argc, char **argv, char **envp)
 	get_envp(envp);
 //	tokens = tokenize("$USER *l* echo \"$HOME=$PATH a\" | print hui && 'abo*bich&|||<><ds'$");
 //	tokens = tokenize("echo *fi* \"hello $GIT_SSH_COMMAND * world\"'bla * $GIT_SSH_COMMAND'$GIT_SSH_COMMAND\"another one\"$GIT_SSH_COMMAND bruh $GIT_SSH_COMMAND| grep ^h && (hostname | grep bla ) | megapipe ||printf buh");
-	tokens = tokenize("echo a | cat b | grep $C | \"loh\" *d && (export L=sd) || <<$VAR* | >>2 | <3 && 'ti loh' || printf \"buh\"");
+	tokens = tokenize("echo a | cat b | grep $HOME | \"loh\" in* && (export L=sd) || <<$VAR* | >>2 | <3 && 'ti loh' || printf \"buh\"");
 //	tokens = tokenize("a | b || (a | b && c | d) | c | d");
 //	tokens = tokenize("a | b || c | d");
 //	tokens = tokenize("echo $");
 	print_tokens(tokens);
 	if (tokens)
 		argc = 0;
-	exit(0);
 	ptree = pda_parse(tokens);
 	ft_printf("after parsing:\n");
 	print_tree(ptree, 0);
@@ -187,5 +186,5 @@ int	main(int argc, char **argv, char **envp)
 	ptree = ptree_flattening(ptree);
 	print_tree(ptree, 0);
 	ft_printf("\n");
-	execute_complete_command(ptree);
+	execute_complete_command(ptree->child->head->as_tree);
 }
