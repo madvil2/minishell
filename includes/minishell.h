@@ -38,12 +38,11 @@
 */
 
 # include <stdio.h>
-# include <dirent.h>
-# include <fcntl.h>
-
 # include "../libft/includes/libft.h"
 # include "../libft/includes/hashtable.h"
 # include "../libft/includes/tree.h"
+# include <dirent.h>
+# include <fcntl.h>
 
 #define TRUE 1
 #define FALSE 0

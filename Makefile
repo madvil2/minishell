@@ -8,14 +8,18 @@ LIB_PATH :=			libft/
 CC :=				cc
 CFLAGS :=			-g -Wall -Werror -Wextra
 IFLAGS :=			-I $(INC_PATH) -I $(LIB_PATH)
-LFLAGS :=			-L $(LIB_PATH) -lft
+LFLAGS :=			-L $(LIB_PATH) -lft -lreadline
 
 HFILES :=			minishell
 
 SUB_PATH :=			.\
-					parsing
+					parsing\
+					executor
 
-FILES :=			minishell\
+FILES :=			main\
+					minishell\
+					exec_pipe\
+					signals\
 					env\
 					tokenize\
 					expand_env_vars\
