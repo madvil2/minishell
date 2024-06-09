@@ -30,7 +30,6 @@ t_ht	*get_envp(char **env)
 			ht_add(ht_envp, ft_strndup(*env, equal_pos), ft_strdup(*env + equal_pos + 1));
 			env++;
 		}
-		ht_print(ht_envp);
 	}
 	set_allocator(TEMP);
 	return (ht_envp);
@@ -41,7 +40,9 @@ void	envp_add(const char *key, const char *value)
 	t_ht	*ht_envp;
 
 	ht_envp = get_envp(NULL);
+	set_allocator(PERM);
 	ht_add(ht_envp, (char *)key, (char *)value);
+	set_allocator(TEMP);
 }
 
 void	envp_delete(const char *key)
@@ -56,7 +57,7 @@ char	*envp_find(const char *key)
 {
 	t_ht	*ht_envp;
 
-	if (key[0] != '$')
+	if (key[0] != EXP_REPLACE)
 		return (ft_strdup(key));
 	if (!key[1])
 		return (ft_strdup("$"));

@@ -20,7 +20,15 @@ FILES :=			main\
 					minishell\
 					exec_pipe\
 					signals\
-					env
+					env\
+					tokenize\
+					expand_env_vars\
+					globbing\
+					form_words\
+					pda_parse\
+					utils\
+					flattening\
+					execute_ptree
 
 LIB :=				$(LIB_PATH)libft.a
 
@@ -49,7 +57,7 @@ clean: mclean
 	make clean -C $(LIB_PATH)
 
 fclean: mfclean
-	rm -rf $(LIB_PATH)
+	#rm -rf $(LIB_PATH)
 
 re: fclean all
 
