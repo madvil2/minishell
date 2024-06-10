@@ -114,6 +114,7 @@ static t_deque **rules_init(void)
 		i++;
 		line = get_next_line(fd);
 	}
+	close(fd);
 	return (res);
 }
 

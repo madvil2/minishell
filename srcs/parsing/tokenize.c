@@ -165,7 +165,12 @@ int	main(int argc, char **argv, char **envp)
 {
 	t_deque	*tokens;
 	t_tree *ptree;
+	sem_unlink(SEM_NAME);
+	sem_t *sem_print = sem_open(SEM_NAME, O_CREAT | O_EXCL, 0700, 1);
 
+	if (!sem_print)
+		return (ft_dprintf(2, "sem init failed\n"));
+	sem_init(sem_print, 1, 1);
 	if ((argc && argv))
 		argc = 0;
 	get_envp(envp);
@@ -186,5 +191,8 @@ int	main(int argc, char **argv, char **envp)
 	ptree = ptree_flattening(ptree);
 	print_tree(ptree, 0);
 	ft_printf("\n");
-	execute_complete_command(ptree->child->head->as_tree);
+	execute_complete_command(ptree->child->head->as_tree, sem_print);
+//	sem_close(sem_print);
+	gc_free(TEMP);
+	gc_free(PERM);
 }

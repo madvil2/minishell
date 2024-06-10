@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -127,7 +128,7 @@ static void	execute_command(Command cmd)
 	free_matrix(path_parts);
 }
 
-void	execute_pipeline(Command *cmds, int n) {
+static void	execute_pipeline(Command *cmds, int n) {
 	int	i;
 	int	in_fd;
 	int	fd[2];
@@ -181,14 +182,14 @@ void	execute_pipeline(Command *cmds, int n) {
 	while (wait(NULL) > 0);
 }
 
-int	main()
-{
-	Command	cmds[3] = {
-			{"ls", {"ls", "-l", "-a", NULL}, NULL, NULL},
-			{"grep", {"grep", "minishell", NULL}, NULL, NULL},
-			{"sort", {"sort", NULL}, NULL, "test.txt"}
-	};
-
-	execute_pipeline(cmds, 3);
-	return (0);
-}
+//int	main()
+//{
+//	Command	cmds[3] = {
+//			{"ls", {"/bin/ls", "-l", "-a", NULL}, NULL, NULL},
+//			{"grep", {"grep", "minishell", NULL}, NULL, NULL},
+//			{"sort", {"sort", NULL}, NULL, "test.txt"}
+//	};
+//
+//	execute_pipeline(cmds, 3);
+//	return (0);
+//}

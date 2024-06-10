@@ -95,6 +95,51 @@ void	print_queue(t_deque	*queue)
 	ft_printf("\n");
 }
 
+void	print_tokens_fd(t_deque *tokens, int fd)
+{
+	int i = -1;
+	t_deque_node *travel;
+
+	travel = tokens->head;
+	while (++i < tokens->size)
+	{
+		if (travel->as_token->type == TOK_AND)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_AND, travel->as_token->str);
+		else if (travel->as_token->type == TOK_APPEND)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_APPEND, travel->as_token->str);
+		else if (travel->as_token->type == TOK_DQUOTE_STR)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_DQUOTE_STR, travel->as_token->str);
+		else if (travel->as_token->type == TOK_EOL)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_EOL, travel->as_token->str);
+		else if (travel->as_token->type == TOK_EPSILON)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_EPSILON, travel->as_token->str);
+		else if (travel->as_token->type == TOK_ERROR)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_ERROR, travel->as_token->str);
+		else if (travel->as_token->type == TOK_HEREDOC)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_HEREDOC, travel->as_token->str);
+		else if (travel->as_token->type == TOK_INPUT)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_INPUT, travel->as_token->str);
+		else if (travel->as_token->type == TOK_L_PAREN)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_L_PAREN, travel->as_token->str);
+		else if (travel->as_token->type == TOK_R_PAREN)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_R_PAREN, travel->as_token->str);
+		else if (travel->as_token->type == TOK_OR)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_OR, travel->as_token->str);
+		else if (travel->as_token->type == TOK_OVERWRITE)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_OVERWRITE, travel->as_token->str);
+		else if (travel->as_token->type == TOK_SQUOTE_STR)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_SQUOTE_STR, travel->as_token->str);
+		else if (travel->as_token->type == TOK_PIPE)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_PIPE, travel->as_token->str);
+		else if (travel->as_token->type == TOK_WORD)
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_WORD, travel->as_token->str);
+		else
+			ft_dprintf(fd, "%s \"%s\" ", STR_TOK_UNKNOWN, travel->as_token->str);
+		travel = travel->next;
+	}
+	ft_dprintf(fd, "\n");
+}
+
 void	print_tokens(t_deque *tokens)
 {
 	int i = -1;
