@@ -6,7 +6,7 @@ OBJ_PATH :=			.obj/
 LIB_PATH :=			libft/
 
 CC :=				cc
-CFLAGS :=			-g -Wall -Werror -Wextra
+CFLAGS :=			-g -Wall -Werror -Wextra -Wno-deprecated
 IFLAGS :=			-I $(INC_PATH) -I $(LIB_PATH)
 LFLAGS :=			-L $(LIB_PATH) -lft -lreadline
 
@@ -28,7 +28,8 @@ FILES :=			main\
 					pda_parse\
 					utils\
 					flattening\
-					execute_ptree
+					execute_ptree\
+					execute_simple_command
 
 LIB :=				$(LIB_PATH)libft.a
 

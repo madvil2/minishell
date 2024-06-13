@@ -10,22 +10,21 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../libft/libft.h"
 #include "../../includes/minishell.h"
 #include <signal.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <readline/readline.h>
 
-static int	event_hook(void)
-{
-	return (0); // Continues readline's loop unless interrupted.
-}
+//static int	event_hook(void)
+//{
+//	return (0); // Continues readline's loop unless interrupted.
+//}
 
 static void	sigint_handle(int sig)
 {
 	(void)sig;
-	rl_done = 1; // Signal to readline that it should return immediately.
+//	rl_done = 1; // Signal to readline that it should return immediately. //not working on macos
 }
 
 void	signals_hook(void)
@@ -33,7 +32,7 @@ void	signals_hook(void)
 	struct sigaction	sa_int;
 	struct sigaction	sa_ignore;
 
-	rl_event_hook = event_hook; // Set readline's event hook.
+//	rl_event_hook = event_hook; // Set readline's event hook.//not working on macos
 	// Setup SIGINT handling
 	sigemptyset(&sa_int.sa_mask);
 	sa_int.sa_flags = 0; // Clear flags to default.

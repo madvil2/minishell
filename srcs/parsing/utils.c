@@ -38,6 +38,8 @@ void	print_tree(t_tree *root, int depth)
 		str = STR_NT_SIMPLE_COMMAND;
 	if (root->as_nt->type == NT_SIMPLE_COMMAND_TAIL)
 		str = STR_NT_SIMPLE_COMMAND_TAIL;
+	if (root->as_nt->type == NT_COMPOUND_COMMAND_TAIL)
+		str = STR_NT_COMPOUND_COMMAND_TAIL;
 	if (root->as_nt->type == NT_TERMINAL)
 		str = root->as_nt->token->str;
 	i = -1;
@@ -87,6 +89,8 @@ void	print_queue(t_deque	*queue)
 			str = STR_NT_SIMPLE_COMMAND;
 		if (travel->as_tree->as_nt->type == NT_SIMPLE_COMMAND_TAIL)
 			str = STR_NT_SIMPLE_COMMAND_TAIL;
+		if (travel->as_tree->as_nt->type == NT_COMPOUND_COMMAND_TAIL)
+			str = STR_NT_COMPOUND_COMMAND_TAIL;
 		if (travel->as_tree->as_nt->type == NT_TERMINAL)
 			str = travel->as_tree->as_nt->token->str;
 		ft_printf("%s - ", str);
@@ -297,6 +301,8 @@ char	*nt_to_str(t_nonterm_type type)
 		str = STR_NT_SIMPLE_COMMAND;
 	if (type == NT_SIMPLE_COMMAND_TAIL)
 		str = STR_NT_SIMPLE_COMMAND_TAIL;
+	if (type == NT_COMPOUND_COMMAND_TAIL)
+		str = STR_NT_COMPOUND_COMMAND_TAIL;
 	if (type == NT_TERMINAL)
 		str = STR_NT_TERMINAL;
 	return (ft_strdup(str));
@@ -322,4 +328,13 @@ void	print_rules(t_deque **rules)
 		}
 		printf("\n");
 	}
+}
+
+void	print_arr_fd(char **arr, int fd)
+{
+	int	i;
+
+	i = -1;
+	while (arr[++i])
+		ft_dprintf(fd, "%s\n", arr[i]);
 }
