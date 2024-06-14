@@ -28,7 +28,8 @@ static void	setup_input(char *path,t_token_type type)
 			perror("dup2 error");
 			exit(EXIT_FAILURE);
 		}
-		close(in_fd);
+		if (in_fd != STDIN_FILENO)
+			close(in_fd);
 	}
 	//else heredoc in parsing
 }
@@ -51,7 +52,8 @@ static void	setup_output(char *path, t_token_type type)
 		perror("dup2 output");
 		exit(EXIT_FAILURE);
 	}
-	close(out_fd);
+	if (out_fd != STDOUT_FILENO)
+		close(out_fd);
 }
 
 void	setup_redirections(char *str, t_token_type type)

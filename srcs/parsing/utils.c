@@ -57,6 +57,51 @@ void	print_tree(t_tree *root, int depth)
 	}
 }
 
+void	print_tree_fd(int fd, t_tree *root, int depth)
+{
+	int		i;
+	char	*str;
+	t_deque_node *travel;
+
+	if (root->as_nt->type == NT_S)
+		str = STR_NT_S;
+	if (root->as_nt->type == NT_AND_OR)
+		str = STR_NT_AND_OR;
+	if (root->as_nt->type == NT_AND_OR_SEQUENCE)
+		str = STR_NT_AND_OR_SEQUENCE;
+	if (root->as_nt->type == NT_AND_OR_SEQUENCE_TAIL)
+		str = STR_NT_AND_OR_SEQUENCE_TAIL;
+	if (root->as_nt->type == NT_COMPLETE_COMMAND)
+		str = STR_NT_COMPLETE_COMMAND;
+	if (root->as_nt->type == NT_IO_REDIRECT)
+		str = STR_NT_IO_REDIRECT;
+	if (root->as_nt->type == NT_PIPE_SEQUENCE)
+		str = STR_NT_PIPE_SEQUENCE;
+	if (root->as_nt->type == NT_PIPE_SEQUENCE_TAIL)
+		str = STR_NT_PIPE_SEQUENCE_TAIL;
+	if (root->as_nt->type == NT_SIMPLE_COMMAND)
+		str = STR_NT_SIMPLE_COMMAND;
+	if (root->as_nt->type == NT_SIMPLE_COMMAND_TAIL)
+		str = STR_NT_SIMPLE_COMMAND_TAIL;
+	if (root->as_nt->type == NT_COMPOUND_COMMAND_TAIL)
+		str = STR_NT_COMPOUND_COMMAND_TAIL;
+	if (root->as_nt->type == NT_TERMINAL)
+		str = root->as_nt->token->str;
+	i = -1;
+	while (++i < depth)
+		ft_dprintf(fd, "\t");
+	ft_dprintf(fd, "%s\n", str);
+	if (!root->child || !root->child->size)
+		return ;
+	i = -1;
+	travel = root->child->head;
+	while (++i < root->child->size)
+	{
+		print_tree_fd(fd, travel->as_tree, depth + 1);
+		travel = travel->next;
+	}
+}
+
 void	print_queue(t_deque	*queue)
 {
 	int				i;

@@ -183,8 +183,10 @@ int	main(int argc, char **argv, char **envp)
 //	tokens = tokenize("echo *fi* \"hello $GIT_SSH_COMMAND * world\"'bla * $GIT_SSH_COMMAND'$GIT_SSH_COMMAND\"another one\"$GIT_SSH_COMMAND bruh $GIT_SSH_COMMAND| grep ^h && (hostname | grep bla ) | megapipe ||printf buh");
 	tokens = tokenize("echo a | cat b | grep $HOME | \"loh\" in* && (export L=sd) && <<$VAR* | >>2 | <3 && 'ti loh' && printf \"buh\"");
 //	tokens = tokenize("a | b || (a | b && c | d) | c | d");
-//	tokens = tokenize("hui | ( a | b || c | d )  < file1 < file2 | pizda ");
+//	tokens = tokenize("hui | ( a | b && c | d ) < file1 < file2 | pizda ");
 //	tokens = tokenize("echo $");
+//	tokens = tokenize("cat | (ls -a | ls -b | ls -c) | grep x");
+//	tokens = tokenize("a && b && (c && d) || e && f");
 	print_tokens(tokens);
 	if (tokens)
 		argc = 0;

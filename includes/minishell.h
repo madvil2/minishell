@@ -51,6 +51,9 @@
 #define TRUE 1
 #define FALSE 0
 
+#define PIPE_WRITE 1
+#define PIPE_READ 0
+
 #define SEM_NAME "semich"
 
 #define IFS " \n\t"
@@ -179,6 +182,7 @@ t_tree	*ptree_cleanup(t_tree *root);
 
 //utils.c
 void	print_tree(t_tree *root, int depth);
+void	print_tree_fd(int fd, t_tree *root, int depth);
 void	print_queue(t_deque	*queue);
 void	print_tokens(t_deque *tokens);
 void	print_input(t_deque *tokens);
