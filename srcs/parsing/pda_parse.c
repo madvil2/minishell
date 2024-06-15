@@ -136,7 +136,11 @@ static t_deque *get_rule(t_nonterm_type nt, t_token_type token)
 		{-1, -1, -1, -1, -1, -1, -1, 20, 22, 19, 21}};
 
 	if (!rules)
+	{
+		set_allocator(PERM);
 		rules = rules_init();
+		set_allocator(TEMP);
+	}
 	ft_printf("applying rule %d\n", parsing_table[nt][token]);
 	if (parsing_table[nt][token] == -1)
 		return (NULL);

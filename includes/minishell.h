@@ -41,6 +41,8 @@
 */
 
 # include <stdio.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 # include "../libft/includes/libft.h"
 # include "../libft/includes/hashtable.h"
 # include "../libft/includes/tree.h"
@@ -48,20 +50,20 @@
 # include <fcntl.h>
 # include <semaphore.h>
 
-#define TRUE 1
-#define FALSE 0
+# define TRUE 1
+# define FALSE 0
 
-#define PIPE_WRITE 1
-#define PIPE_READ 0
+# define PIPE_WRITE 1
+# define PIPE_READ 0
 
-#define SEM_NAME "semich"
+# define SEM_NAME "semich"
 
-#define IFS " \n\t"
-#define EXP_REPLACE '%'//change to random chars
-#define GLOB_REPLACE '#'
-#define SPACE_REPLACE '\t'
-#define GLOB_START '['
-#define GLOB_END ']'
+# define IFS " \n\t"
+# define EXP_REPLACE '%'//change to random chars
+# define GLOB_REPLACE '#'
+# define SPACE_REPLACE '\t'
+# define GLOB_START '['
+# define GLOB_END ']'
 
 typedef enum e_token_type	t_token_type;
 typedef struct s_token		t_token;

@@ -138,7 +138,8 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 		pid = fork();
 		if (pid == 0)
 		{
-			close(pipefd[PIPE_READ]);
+			if (i < root->nb_child - 1)
+				close(pipefd[PIPE_READ]);
 			if (prev_in_fd != -1)
 			{
 				dup2(prev_in_fd, STDIN_FILENO);
@@ -159,7 +160,8 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 			close(prev_in_fd);
 		if (i < root->nb_child - 1)
 			close(pipefd[PIPE_WRITE]);
-		prev_in_fd = dup(pipefd[PIPE_READ]);
+		if (i < root->nb_child - 1)
+			prev_in_fd = dup(pipefd[PIPE_READ]);
 		travel = travel->next->next;
 		i += 2;
 	}
