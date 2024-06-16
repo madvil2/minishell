@@ -49,6 +49,8 @@
 # include <dirent.h>
 # include <fcntl.h>
 # include <semaphore.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 # define TRUE 1
 # define FALSE 0
@@ -203,5 +205,8 @@ int	execute_complete_command(t_tree *root, sem_t *print_sem);
 //execute_simple_command.c
 int		execute_simple_command(char *program, char **argv);
 void	setup_redirections(char *str, t_token_type type);
+
+//heredoc.c
+char	*create_heredoc(char *phrase);
 
 #endif

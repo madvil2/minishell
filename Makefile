@@ -29,7 +29,8 @@ FILES :=			main\
 					utils\
 					flattening\
 					execute_ptree\
-					execute_simple_command
+					execute_simple_command\
+					heredoc
 
 LIB :=				$(LIB_PATH)libft.a
 

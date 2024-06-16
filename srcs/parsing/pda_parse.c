@@ -217,8 +217,8 @@ t_tree	*pda_parse(t_deque *input)
 		{
 			if (stack->head->as_nt->token->type == input->head->as_token->type)
 			{
-				if (input->head->as_token->type == TOK_WORD)
-					ft_printf("HERE WORD\n");
+				if (input->head->as_token->type == TOK_HEREDOC && input->head->next->as_token->type == TOK_WORD)
+					input->head->next->as_token->str = create_heredoc(input->head->next->as_token->str);
 				ptree_add_node(&root, NULL, input->head->as_token->str);
 				deque_pop_right(input);
 				deque_pop_right(stack);

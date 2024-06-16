@@ -15,7 +15,7 @@ static void	setup_input(char *path,t_token_type type)
 {
 	int	in_fd;
 
-	if (type == TOK_INPUT)
+	if (type == TOK_INPUT || type == TOK_HEREDOC)
 	{
 		in_fd = open(path, O_RDONLY);
 		if (in_fd < 0)
@@ -31,7 +31,6 @@ static void	setup_input(char *path,t_token_type type)
 		if (in_fd != STDIN_FILENO)
 			close(in_fd);
 	}
-	//else heredoc in parsing
 }
 
 static void	setup_output(char *path, t_token_type type)
