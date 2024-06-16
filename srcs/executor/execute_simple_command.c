@@ -80,7 +80,7 @@ static char	*search_executable(char *program, char **path_parts)
 	{
 		path = ft_strjoin(*path_parts, "/");
 		executable_path = ft_strjoin(path, program);
-		free(path);
+//		free(path); not needed
 		if (access(executable_path, X_OK) == 0)//&& stat(executable_path, &statbuf) == 0 && S_ISREG(statbuf.st_mode)
 			return (executable_path);
 		free(executable_path);
@@ -95,8 +95,11 @@ int	execute_simple_command(char *program, char **argv)
 	char	**path_parts;
 	char	*executable_path;
 	pid_t	pid;
+	char	exp_prefix[2];
 
-	path_parts = ft_split(envp_find("$PATH"), ':');
+	exp_prefix[0] = EXP_REPLACE;
+	exp_prefix[1] = 0;
+	path_parts = ft_split(envp_find(ft_strjoin(exp_prefix, "PATH")), ':');
 	executable_path = search_executable(program, path_parts);
 	if (!executable_path)
 	{

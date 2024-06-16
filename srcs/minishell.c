@@ -26,13 +26,15 @@ int	main(int argc, char **argv, char **envp)
 	sem_init(sem_print, 1, 1);
 	if ((argc && argv))
 		argc = 0;
+	set_allocator(PERM);
 	get_envp(envp);
+	set_allocator(TEMP);
 	rl_line_buf = NULL;
 	while (1)
 	{
 		rl_line_buf = readline("( ͡° ͜ʖ ͡°) ");
 		add_history(rl_line_buf);
-		//		dumpster_push(*get_dumpster(TEMP), rl_line_buf);
+		dumpster_push(*get_dumpster(TEMP), rl_line_buf);
 		set_allocator(PERM);
 		lines = ft_split(rl_line_buf, '\n');
 		set_allocator(TEMP);

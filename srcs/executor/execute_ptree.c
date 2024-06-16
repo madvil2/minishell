@@ -114,7 +114,7 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 	ft_dprintf(2, "executed\n");
 	print_arr_fd(argv, 2);
 	sem_post(sem_print);
-	return (0);
+//	return (0);
 	execute_simple_command(argv[0], argv);
 	return (0);
 }

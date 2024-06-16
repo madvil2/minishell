@@ -16,7 +16,7 @@ t_token		*token_init(t_token_type type, char *str)
 {
 	t_token	*res;
 
-	res = malloc(sizeof(t_token));
+	res = ft_malloc(sizeof(t_token));
 	res->type = type;
 	res->str = ft_strdup(str);
 	return (res);
@@ -26,7 +26,7 @@ t_nonterm	*nt_init(t_nonterm_type type, t_token *token)
 {
 	t_nonterm	*res;
 
-	res = malloc(sizeof(t_nonterm));
+	res = ft_malloc(sizeof(t_nonterm));
 	res->type = type;
 	if (token)
 		res->token = token_init(token->type, token->str);
@@ -135,12 +135,10 @@ static t_deque *get_rule(t_nonterm_type nt, t_token_type token)
 		{18, 18, 18, 18, -1, 18, -1, 17, 17, 17, 17},
 		{-1, -1, -1, -1, -1, -1, -1, 20, 22, 19, 21}};
 
+	set_allocator(PERM);
 	if (!rules)
-	{
-		set_allocator(PERM);
 		rules = rules_init();
-		set_allocator(TEMP);
-	}
+	set_allocator(TEMP);
 	ft_printf("applying rule %d\n", parsing_table[nt][token]);
 	if (parsing_table[nt][token] == -1)
 		return (NULL);

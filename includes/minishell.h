@@ -154,12 +154,15 @@ struct s_nonterm
 t_deque	*tokenize(const char *str);
 
 //expand_env_vars.c
+void	expand_env_vars(t_deque *tokens);
 
+//env.c
+void	envp_print(void);
 t_ht	*get_envp(char **env);
 void	envp_add(const char *key, const char *value);
 void	envp_delete(const char *key);
 char	*envp_find(const char *key);
-void	expand_env_vars(t_deque *tokens);
+
 
 //tokenize.c
 t_deque	*tokenize(const char *str);
