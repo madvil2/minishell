@@ -176,7 +176,7 @@ static char	*join_globbed_str(t_deque *res_words, char *str)
 	while (1)
 	{
 		j = 0;
-		while (str[i] && ft_strchr(IFS, str[i]))
+		while (str[i] && ft_strchr(" ", str[i]))
 		{
 			i++;
 			j++;
@@ -186,7 +186,7 @@ static char	*join_globbed_str(t_deque *res_words, char *str)
 			break ;
 		deque_push_node_left(res_deque, deque_node_init(travel->as_str));
 		travel = travel->next;
-		while (str[i] && !ft_strchr(IFS, str[i]))
+		while (str[i] && !ft_strchr(" ", str[i]))
 			i++;
 	}
 	return (ft_arr_to_str(res_deque->size, (char **)deque_to_arr(res_deque), ""));

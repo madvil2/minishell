@@ -1,0 +1,9 @@
+Test123 May is not just a
+$USER *l* echo \"$HOME=$PATH a\" | print hui && 'abo*bich&|||<><ds'$
+echo *fi* \"hello $GIT_SSH_COMMAND * world\"'bla * $GIT_SSH_COMMAND'$GIT_SSH_COMMAND\"another one\"$GIT_SSH_COMMAND bruh $GIT_SSH_COMMAND| grep ^h && (hostname | grep bla ) | megapipe ||printf buh
+echo a | cat b | grep $HOME | \"loh\" in* && (export L=sd) && <<$VAR* | >>2 | <3 && 'ti loh' && printf \"buh\"
+a | b || (a | b && c | d) | c | d
+hui | ( a | b && c | d ) < file1 < file2 | pizda
+echo $
+cat | (ls -a | ls -b | ls -c) | grep x
+a && b && (c && d) || e && f

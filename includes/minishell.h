@@ -13,7 +13,7 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-# define NB_RULES 20
+# define NB_RULES 23
 /*
 0. <S> ::= <complete_command> $
 1. <complete_command> ::= ''
@@ -26,33 +26,46 @@
 8. <pipe_sequence> ::= <simple_command> <pipe_sequence_tail>
 9. <pipe_sequence_tail> ::= ''
 10. <pipe_sequence_tail> ::= | <simple_command> <pipe_sequence_tail>
-11. <simple_command> ::= ( <and_or_sequence> )
+11. <simple_command> ::= ( <and_or_sequence> ) <compound_command_tail>
 12. <simple_command> ::= <io_redirect> TOK_WORD <simple_command_tail>
-13. <simple_command_tail> ::= <io_redirect> TOK_WORD <simple_command_tail>
-14. <simple_command_tail> ::= ''
-15. <io_redirect> ::= ''
-16. <io_redirect> ::= <
-17. <io_redirect> ::= >
-18. <io_redirect> ::= <<
-19. <io_redirect> ::= >>
+13. <simple_command_tail> ::= TOK_WORD <simple_command_tail>
+14. <simple_command> ::= TOK_WORD <simple_command_tail>
+15. <simple_command_tail> ::= <io_redirect> TOK_WORD <simple_command_tail>
+16. <simple_command_tail> ::= ''
+17. <compound_command_tail> ::= <io_redirect> TOK_WORD <compound_command_tail>
+18. <compound_command_tail> ::= ''
+19. <io_redirect> ::= <
+20. <io_redirect> ::= >
+21. <io_redirect> ::= <<
+22. <io_redirect> ::= >>
 */
 
 # include <stdio.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 # include "../libft/includes/libft.h"
 # include "../libft/includes/hashtable.h"
 # include "../libft/includes/tree.h"
 # include <dirent.h>
 # include <fcntl.h>
+# include <semaphore.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
-#define TRUE 1
-#define FALSE 0
+# define TRUE 1
+# define FALSE 0
 
-#define IFS " \n\t"
-#define EXP_REPLACE '%'//change to random chars
-#define GLOB_REPLACE '#'
-#define SPACE_REPLACE '\t'
-#define GLOB_START '['
-#define GLOB_END ']'
+# define PIPE_WRITE 1
+# define PIPE_READ 0
+
+# define SEM_NAME "semich"
+
+# define IFS " \n\t"
+# define EXP_REPLACE '%'//change to random chars
+# define GLOB_REPLACE '#'
+# define SPACE_REPLACE '\t'
+# define GLOB_START '['
+# define GLOB_END ']'
 
 typedef enum e_token_type	t_token_type;
 typedef struct s_token		t_token;
@@ -90,6 +103,7 @@ enum e_nonterm_type
 	NT_PIPE_SEQUENCE_TAIL,
 	NT_SIMPLE_COMMAND,
 	NT_SIMPLE_COMMAND_TAIL,
+	NT_COMPOUND_COMMAND_TAIL,
 	NT_IO_REDIRECT,
 	NT_TERMINAL
 };
@@ -132,6 +146,7 @@ struct s_nonterm
 # define STR_NT_PIPE_SEQUENCE_TAIL "NT_PIPE_SEQUENCE_TAIL"
 # define STR_NT_SIMPLE_COMMAND "NT_SIMPLE_COMMAND"
 # define STR_NT_SIMPLE_COMMAND_TAIL "NT_SIMPLE_COMMAND_TAIL"
+# define STR_NT_COMPOUND_COMMAND_TAIL "NT_COMPOUND_COMMAND_TAIL"
 # define STR_NT_IO_REDIRECT "NT_IO_REDIRECT"
 # define STR_NT_TERMINAL "NT_TERMINAL"
 
@@ -139,12 +154,15 @@ struct s_nonterm
 t_deque	*tokenize(const char *str);
 
 //expand_env_vars.c
+void	expand_env_vars(t_deque *tokens);
 
+//env.c
+void	envp_print(void);
 t_ht	*get_envp(char **env);
 void	envp_add(const char *key, const char *value);
 void	envp_delete(const char *key);
 char	*envp_find(const char *key);
-void	expand_env_vars(t_deque *tokens);
+
 
 //tokenize.c
 t_deque	*tokenize(const char *str);
@@ -171,17 +189,27 @@ t_tree	*ptree_cleanup(t_tree *root);
 
 //utils.c
 void	print_tree(t_tree *root, int depth);
+void	print_tree_fd(int fd, t_tree *root, int depth);
 void	print_queue(t_deque	*queue);
 void	print_tokens(t_deque *tokens);
 void	print_input(t_deque *tokens);
 void	print_stack(t_deque *stack);
 char	*nt_to_str(t_nonterm_type type);
 void	print_rules(t_deque **rules);
+void	print_tokens_fd(t_deque *tokens, int fd);
+void	print_arr_fd(char **arr, int fd);
 
 //execute_ptree.c
-int	execute_simple_command(t_tree *root);
-int	execute_pipe_sequence(t_tree *root);
-int	execute_and_or_sequence(t_tree *root);
-int	execute_complete_command(t_tree *root);
+int	execute_simple_command_wrapper(t_tree *root, sem_t *print_sem);
+int	execute_pipe_sequence(t_tree *root, sem_t *print_sem);
+int	execute_and_or_sequence(t_tree *root, sem_t *print_sem);
+int	execute_complete_command(t_tree *root, sem_t *print_sem);
+
+//execute_simple_command.c
+int		execute_simple_command(char *program, char **argv);
+void	setup_redirections(char *str, t_token_type type);
+
+//heredoc.c
+char	*create_heredoc(char *phrase);
 
 #endif

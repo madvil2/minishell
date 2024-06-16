@@ -129,6 +129,11 @@ t_deque	*tokenize(const char *str)
 			travel->as_token->str = ft_replace_char(travel->as_token->str, '$', EXP_REPLACE);
 		if (travel->as_token->type == TOK_WORD)
 			travel->as_token->str = ft_replace_char(travel->as_token->str, '*', GLOB_REPLACE);
+		if (travel->as_token->type == TOK_DQUOTE_STR || travel->as_token->type == TOK_SQUOTE_STR)
+		{
+			travel->as_token->str = ft_replace_char(travel->as_token->str, ' ', SPACE_REPLACE);
+			travel->as_token->type = TOK_WORD;
+		}
 		travel = travel->next;
 	}
 //	ft_printf("Before:\n");
@@ -142,10 +147,10 @@ t_deque	*tokenize(const char *str)
 	merge_words(&tokens);
 //	ft_printf("After merge:\n");
 //	print_tokens(tokens);
-	travel = tokens->head;
 	split_words(&tokens);
-//	ft_printf("After splitting:\n");
-//	print_tokens(tokens);
+	ft_printf("After splitting:\n");
+	print_tokens(tokens);
+	travel = tokens->head;
 	i = 0;
 	while (++i < tokens->size)
 	{
@@ -159,32 +164,4 @@ t_deque	*tokenize(const char *str)
 //	ft_printf("After heredoc_change:\n");
 //	print_tokens(tokens);
 	return (tokens);
-}
-
-int	main(int argc, char **argv, char **envp)
-{
-	t_deque	*tokens;
-	t_tree *ptree;
-
-	if ((argc && argv))
-		argc = 0;
-	get_envp(envp);
-//	tokens = tokenize("$USER *l* echo \"$HOME=$PATH a\" | print hui && 'abo*bich&|||<><ds'$");
-//	tokens = tokenize("echo *fi* \"hello $GIT_SSH_COMMAND * world\"'bla * $GIT_SSH_COMMAND'$GIT_SSH_COMMAND\"another one\"$GIT_SSH_COMMAND bruh $GIT_SSH_COMMAND| grep ^h && (hostname | grep bla ) | megapipe ||printf buh");
-	tokens = tokenize("echo a | cat b | grep $HOME | \"loh\" in* && (export L=sd) && <<$VAR* | >>2 | <3 && 'ti loh' || printf \"buh\"");
-//	tokens = tokenize("a | b || (a | b && c | d) | c | d");
-//	tokens = tokenize("a | b || c | d");
-//	tokens = tokenize("echo $");
-	print_tokens(tokens);
-	if (tokens)
-		argc = 0;
-	ptree = pda_parse(tokens);
-	ft_printf("after parsing:\n");
-	print_tree(ptree, 0);
-	ft_printf("\n");
-	ft_printf("after flattening:\n");
-	ptree = ptree_flattening(ptree);
-	print_tree(ptree, 0);
-	ft_printf("\n");
-	execute_complete_command(ptree->child->head->as_tree);
 }

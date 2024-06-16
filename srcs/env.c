@@ -12,6 +12,11 @@
 
 #include "../includes/minishell.h"
 
+void	envp_print(void)
+{
+	ht_print(get_envp(NULL));
+}
+
 t_ht	*get_envp(char **env)
 {
 	static t_ht	*ht_envp;

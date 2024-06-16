@@ -16,7 +16,7 @@ t_token		*token_init(t_token_type type, char *str)
 {
 	t_token	*res;
 
-	res = malloc(sizeof(t_token));
+	res = ft_malloc(sizeof(t_token));
 	res->type = type;
 	res->str = ft_strdup(str);
 	return (res);
@@ -26,7 +26,7 @@ t_nonterm	*nt_init(t_nonterm_type type, t_token *token)
 {
 	t_nonterm	*res;
 
-	res = malloc(sizeof(t_nonterm));
+	res = ft_malloc(sizeof(t_nonterm));
 	res->type = type;
 	if (token)
 		res->token = token_init(token->type, token->str);
@@ -55,6 +55,8 @@ static t_nonterm *nt_recognizer(char *str)
 		return (nt_init(NT_SIMPLE_COMMAND, NULL));
 	if (!ft_strncmp(str, "<simple_command_tail>", 21))
 		return (nt_init(NT_SIMPLE_COMMAND_TAIL, NULL));
+	if (!ft_strncmp(str, "<compound_command_tail>", 23))
+		return (nt_init(NT_COMPOUND_COMMAND_TAIL, NULL));
 	if (!ft_strncmp(str, "<io_redirect>", 13))
 		return (nt_init(NT_IO_REDIRECT, NULL));
 	if (!ft_strncmp(str, "''", 2))
@@ -114,25 +116,29 @@ static t_deque **rules_init(void)
 		i++;
 		line = get_next_line(fd);
 	}
+	close(fd);
 	return (res);
 }
 
 static t_deque *get_rule(t_nonterm_type nt, t_token_type token)
 {
 	static t_deque	**rules;
-	static int		parsing_table[10][11] = {{0, -1, -1, -1, 0, -1, 0, 0, 0, 0, 0},
+	static int		parsing_table[11][11] = {{0, -1, -1, -1, 0, -1, 0, 0, 0, 0, 0},
 		{1, -1, -1, -1, 2, -1, 2, 2, 2, 2, 2},
 		{-1, -1, -1, -1, 3, -1, 3, 3, 3, 3, 3},
 		{4, 5, 5, -1, -1, 4, -1, -1, -1, -1, -1},
 		{-1, 6, 7, -1, -1, -1, -1, -1, -1, -1, -1},
 		{-1, -1, -1, -1, 8, -1, 8, 8, 8, 8, 8},
 		{9, 9, 9, 10, -1, 9, -1, -1, -1, -1, -1},
-		{-1, -1, -1, -1, 11, -1, 12, 12, 12, 12, 12},
-		{14, 14, 14, 14, -1, 14, 13, 13, 13, 13, 13},
-		{-1, -1, -1, -1, -1, -1, 15, 17, 19, 16, 18}};
+		{-1, -1, -1, -1, 11, -1, 14, 12, 12, 12, 12},
+		{16, 16, 16, 16, -1, 16, 13, 15, 15, 15, 15},
+		{18, 18, 18, 18, -1, 18, -1, 17, 17, 17, 17},
+		{-1, -1, -1, -1, -1, -1, -1, 20, 22, 19, 21}};
 
+	set_allocator(PERM);
 	if (!rules)
 		rules = rules_init();
+	set_allocator(TEMP);
 	ft_printf("applying rule %d\n", parsing_table[nt][token]);
 	if (parsing_table[nt][token] == -1)
 		return (NULL);
@@ -209,8 +215,8 @@ t_tree	*pda_parse(t_deque *input)
 		{
 			if (stack->head->as_nt->token->type == input->head->as_token->type)
 			{
-				if (input->head->as_token->type == TOK_WORD)
-					ft_printf("HERE WORD\n");
+				if (input->head->as_token->type == TOK_HEREDOC && input->head->next->as_token->type == TOK_WORD)
+					input->head->next->as_token->str = create_heredoc(input->head->next->as_token->str);
 				ptree_add_node(&root, NULL, input->head->as_token->str);
 				deque_pop_right(input);
 				deque_pop_right(stack);
