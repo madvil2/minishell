@@ -162,6 +162,8 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 			close(pipefd[PIPE_WRITE]);
 		if (i < root->nb_child - 1)
 			prev_in_fd = dup(pipefd[PIPE_READ]);
+		if (i < root->nb_child - 1)
+			close(pipefd[PIPE_READ]);
 		travel = travel->next->next;
 		i += 2;
 	}
