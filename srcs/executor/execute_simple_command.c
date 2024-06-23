@@ -1,11 +1,12 @@
+/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   execute_simple_command.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nam-vu <nam-vu@student.42berlin.de>        +#+  +:+       +#+        */
+/*   By: kokaimov <kokaimov@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/13 04:12:00 by nam-vu            #+#    #+#             */
-/*   Updated: 2024/06/13 04:12:00 by nam-vu           ###   ########.fr       */
+/*   Created: 2024/06/23 21:42:41 by kokaimov          #+#    #+#             */
+/*   Updated: 2024/06/23 21:45:17 by kokaimov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,11 +90,35 @@ static char	*search_executable(char *program, char **path_parts)
 	return (NULL);
 }
 
-int	execute_simple_command(char *program, char **argv)
-{
+char	**ht_to_envp(t_ht *ht) {
+	char	**envp_array;
+	int		i, j;
+
+	envp_array = ft_calloc(ht->nb_entry + 1, sizeof(char *));
+	if (!envp_array) {
+		perror("ft_calloc");
+		return (NULL);
+	}
+
+	j = 0;
+	i = 0;
+	while (i < ht->size) {
+		if (ht->key[i]) {
+			envp_array[j] = ft_strjoin(ht->key[i], "=");
+			envp_array[j] = ft_strjoin(envp_array[j], ht->value[i]);
+			j++;
+		}
+		i++;
+	}
+	envp_array[j] = NULL;
+	return (envp_array);
+}
+
+int	execute_simple_command(char *program, char **argv) {
 	int		status;
 	char	**path_parts;
 	char	*executable_path;
+	char	**envp;
 	pid_t	pid;
 	char	exp_prefix[2];
 
@@ -101,22 +126,21 @@ int	execute_simple_command(char *program, char **argv)
 	exp_prefix[1] = 0;
 	path_parts = ft_split(envp_find(ft_strjoin(exp_prefix, "PATH")), ':');
 	executable_path = search_executable(program, path_parts);
-	if (!executable_path)
-	{
-		ft_dprintf(STDERR_FILENO, "%s: ", program);
-		write(STDERR_FILENO, "Command not found\n", 18);
+	if (!executable_path) {
+		ft_dprintf(STDERR_FILENO, "%s: Command not found\n", program);
 		return (127);
 	}
+	envp = ht_to_envp(get_envp(NULL));
 	pid = fork();
-	if (pid == 0)
-	{
-		execve(executable_path, argv, NULL); // todo: get_envp() instead of NULL
+	if (pid == 0) {
+		execve(executable_path, argv, envp);
 		perror("execve");
 		exit(EXIT_FAILURE);
-	}
-	else if (pid > 0)
+	} else if (pid > 0) {
 		waitpid(pid, &status, 0);
-	else
+	} else {
 		perror("fork");
+	}
+	free_matrix(envp);
 	return (0);
 }
