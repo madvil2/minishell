@@ -6,7 +6,7 @@
 /*   By: kokaimov <kokaimov@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/23 21:42:41 by kokaimov          #+#    #+#             */
-/*   Updated: 2024/06/23 21:45:17 by kokaimov         ###   ########.fr       */
+/*   Updated: 2024/06/23 21:54:18 by kokaimov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,20 +90,24 @@ static char	*search_executable(char *program, char **path_parts)
 	return (NULL);
 }
 
-char	**ht_to_envp(t_ht *ht) {
+char	**ht_to_envp(t_ht *ht)
+{
 	char	**envp_array;
 	int		i, j;
 
 	envp_array = ft_calloc(ht->nb_entry + 1, sizeof(char *));
-	if (!envp_array) {
+	if (!envp_array)
+	{
 		perror("ft_calloc");
 		return (NULL);
 	}
 
 	j = 0;
 	i = 0;
-	while (i < ht->size) {
-		if (ht->key[i]) {
+	while (i < ht->size)
+	{
+		if (ht->key[i])
+		{
 			envp_array[j] = ft_strjoin(ht->key[i], "=");
 			envp_array[j] = ft_strjoin(envp_array[j], ht->value[i]);
 			j++;
@@ -114,7 +118,8 @@ char	**ht_to_envp(t_ht *ht) {
 	return (envp_array);
 }
 
-int	execute_simple_command(char *program, char **argv) {
+int	execute_simple_command(char *program, char **argv)
+{
 	int		status;
 	char	**path_parts;
 	char	*executable_path;
@@ -126,21 +131,20 @@ int	execute_simple_command(char *program, char **argv) {
 	exp_prefix[1] = 0;
 	path_parts = ft_split(envp_find(ft_strjoin(exp_prefix, "PATH")), ':');
 	executable_path = search_executable(program, path_parts);
-	if (!executable_path) {
-		ft_dprintf(STDERR_FILENO, "%s: Command not found\n", program);
-		return (127);
-	}
+	if (!executable_path)
+		return (ft_dprintf(STDERR_FILENO, "%s: Command not found\n", program), 127);
 	envp = ht_to_envp(get_envp(NULL));
 	pid = fork();
-	if (pid == 0) {
+	if (pid == 0)
+	{
 		execve(executable_path, argv, envp);
 		perror("execve");
 		exit(EXIT_FAILURE);
-	} else if (pid > 0) {
-		waitpid(pid, &status, 0);
-	} else {
-		perror("fork");
 	}
+	else if (pid > 0)
+		waitpid(pid, &status, 0);
+	else
+		perror("fork");
 	free_matrix(envp);
 	return (0);
 }
