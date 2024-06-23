@@ -6,7 +6,7 @@
 /*   By: nam-vu <nam-vu@student.42berlin.de>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 23:32:03 by nam-vu            #+#    #+#             */
-/*   Updated: 2024/05/31 23:32:03 by nam-vu           ###   ########.fr       */
+/*   Updated: 2024/06/23 23:02:08 by kokaimov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,8 +115,16 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 	print_arr_fd(argv, 2);
 	sem_post(sem_print);
 //	return (0);
-	execute_simple_command(argv[0], argv);
-	return (0);
+	// Check for built-in commands
+	if (argv[0] && !ft_strcmp(argv[0], "cd")) {
+		return builtin_cd(argv, 1);  // Assuming 1 is the file descriptor for stdout
+	} else {
+		sem_wait(sem_print);
+		ft_dprintf(2, "executed\n");
+		print_arr_fd(argv, 2);
+		sem_post(sem_print);
+		return execute_simple_command(argv[0], argv);
+	}
 }
 
 int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)

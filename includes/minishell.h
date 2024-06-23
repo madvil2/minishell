@@ -6,7 +6,7 @@
 /*   By: kokaimov <kokaimov@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/27 04:49:31 by kokaimov          #+#    #+#             */
-/*   Updated: 2024/04/27 04:57:25 by kokaimov         ###   ########.fr       */
+/*   Updated: 2024/06/23 23:08:07 by kokaimov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,5 +211,9 @@ void	setup_redirections(char *str, t_token_type type);
 
 //heredoc.c
 char	*create_heredoc(char *phrase);
+
+// cd.c
+int builtin_cd(char **argv, int fd_out);
+char *normalize(char *path);
 
 #endif

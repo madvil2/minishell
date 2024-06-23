@@ -14,7 +14,8 @@ HFILES :=			minishell
 
 SUB_PATH :=			.\
 					parsing\
-					executor
+					executor\
+					builtins
 
 FILES :=			main\
 					minishell\
@@ -30,7 +31,9 @@ FILES :=			main\
 					flattening\
 					execute_ptree\
 					execute_simple_command\
-					heredoc
+					heredoc\
+					cd\
+					normalize
 
 LIB :=				$(LIB_PATH)libft.a
 
