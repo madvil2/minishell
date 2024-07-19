@@ -148,8 +148,8 @@ t_deque	*tokenize(const char *str)
 //	ft_printf("After merge:\n");
 //	print_tokens(tokens);
 	split_words(&tokens);
-	ft_printf("After splitting:\n");
-	print_tokens(tokens);
+//	ft_printf("After splitting:\n"); //debug
+//	print_tokens(tokens); //debug
 	travel = tokens->head;
 	i = 0;
 	while (++i < tokens->size)

@@ -41,17 +41,17 @@ int	main(int argc, char **argv, char **envp)
 		while (*lines)
 		{
 			tokens = tokenize(*lines);
-			print_tokens(tokens);
+			//print_tokens(tokens); //debug
 			if (tokens)
 				argc = 0;
 			ptree = pda_parse(tokens);
-			ft_printf("after parsing:\n");
-			print_tree(ptree, 0);
-			ft_printf("\n");
-			ft_printf("after flattening:\n");
+//			ft_printf("after parsing:\n"); //debug
+//			print_tree(ptree, 0); //debug
+//			ft_printf("\n"); //debug
+			//ft_printf("after flattening:\n"); //debug
 			ptree = ptree_flattening(ptree);
-			print_tree(ptree, 0);
-			ft_printf("\n");
+			//print_tree(ptree, 0); //debug
+//			ft_printf("\n"); //debug
 			execute_complete_command(ptree->child->head->as_tree, sem_print);
 			gc_free(TEMP);
 			lines++;

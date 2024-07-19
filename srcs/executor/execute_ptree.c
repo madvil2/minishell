@@ -97,7 +97,8 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 		if (travel->as_token->type == TOK_INPUT || travel->as_token->type == TOK_OVERWRITE || travel->as_token->type == TOK_APPEND || travel->as_token->type == TOK_HEREDOC)
 		{
 			travel->next->as_token->str = ft_replace_char(travel->next->as_token->str, SPACE_REPLACE, ' ');
-			setup_redirections(travel->next->as_token->str, travel->as_token->type);
+			if (!(setup_redirections(travel->next->as_token->str, travel->as_token->type)))
+                return (1);
 			travel = travel->next;
 			i++;
 		}
@@ -111,8 +112,8 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 	}
 	argv = (char **)deque_to_arr(argv_deque);
 	sem_wait(sem_print);
-	ft_dprintf(2, "executed\n");
-	print_arr_fd(argv, 2);
+	//ft_dprintf(2, "executed\n"); //debug
+	//print_arr_fd(argv, 2); //debug
 	sem_post(sem_print);
 //	return (0);
 	execute_simple_command(argv[0], argv);
@@ -188,8 +189,8 @@ int	execute_and_or_sequence(t_tree *root, sem_t *sem_print)
 		if ((!last_exit_status && travel->prev->as_tree->child->head->as_tree->as_nt->token->type == TOK_AND)
 			|| (last_exit_status && travel->prev->as_tree->child->head->as_tree->as_nt->token->type == TOK_OR))
 		{
-			ft_dprintf(2, "i = %i\n", i);
-			print_tree(travel->as_tree, 0);
+			//ft_dprintf(2, "i = %i\n", i); //debug
+			//print_tree(travel->as_tree, 0); //debug
 			last_exit_status = execute_pipe_sequence(travel->as_tree, sem_print);
 		}
 		i += 2;

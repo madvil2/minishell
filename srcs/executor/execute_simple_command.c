@@ -11,7 +11,7 @@
 
 #include "../../includes/minishell.h"
 
-static void	setup_input(char *path,t_token_type type)
+static int  setup_input(char *path, t_token_type type)
 {
 	int	in_fd;
 
@@ -21,7 +21,7 @@ static void	setup_input(char *path,t_token_type type)
 		if (in_fd < 0)
 		{
 			ft_dprintf(2, "%s: no such file or directory\n", path);
-			return ;
+			return (0);
 		}
 		if (dup2(in_fd, STDIN_FILENO) < 0)
 		{
@@ -31,9 +31,10 @@ static void	setup_input(char *path,t_token_type type)
 		if (in_fd != STDIN_FILENO)
 			close(in_fd);
 	}
+    return (1);
 }
 
-static void	setup_output(char *path, t_token_type type)
+static int	setup_output(char *path, t_token_type type)
 {
 	int	out_fd;
 
@@ -43,8 +44,8 @@ static void	setup_output(char *path, t_token_type type)
 		out_fd = open(path, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (out_fd < 0)
 	{
-		perror("open output");
-		exit(EXIT_FAILURE);
+        ft_dprintf(2, "%s: Permission denied\n", path);
+		return (0);
 	}
 	if (dup2(out_fd, STDOUT_FILENO) < 0)
 	{
@@ -53,14 +54,24 @@ static void	setup_output(char *path, t_token_type type)
 	}
 	if (out_fd != STDOUT_FILENO)
 		close(out_fd);
+    return (1);
 }
 
-void	setup_redirections(char *str, t_token_type type)
+int setup_redirections(char *str, t_token_type type)
 {
+    struct stat buf;
+
+    stat(str, &buf);
+    if (S_ISDIR(buf.st_mode))
+    {
+        ft_dprintf(2, "%s: is a directory\n", str);
+        return (0);
+    }
 	if (type == TOK_INPUT || type == TOK_HEREDOC)
-		setup_input(str, type);
+		return (setup_input(str, type));
 	else if (type == TOK_OVERWRITE || type == TOK_APPEND)
-		setup_output(str, type);
+		return (setup_output(str, type));
+    return (-1);
 }
 
 static char	*search_executable(char *program, char **path_parts)
