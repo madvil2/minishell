@@ -6,11 +6,44 @@
 /*   By: nam-vu <nam-vu@student.42berlin.de>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 23:32:03 by nam-vu            #+#    #+#             */
-/*   Updated: 2024/06/23 23:02:08 by kokaimov         ###   ########.fr       */
+/*   Updated: 2024/05/31 23:32:03 by nam-vu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
+static int is_builtin(char *str)
+{
+	int len;
+
+	len = ft_strlen(str) + 1;
+	if (!ft_strncmp(str, "echo", len) || !ft_strncmp(str, "cd", len) || !ft_strncmp(str, "pwd", len)
+		|| !ft_strncmp(str, "export", len) || !ft_strncmp(str, "unset", len)
+		|| !ft_strncmp(str, "env", len) || !ft_strncmp(str, "exit", len))
+		return (1);
+	return (0);
+}
+
+static int execute_builtin(char **argv)
+{
+	int len;
+
+	len = ft_strlen(argv[0]) + 1;
+	if (!ft_strncmp(argv[0], "echo", len))
+		return (builtin_echo(argv));
+//	if (!ft_strncmp(argv[0], "cd", len))
+//		return (builtin_cd(argv));
+//	if (!ft_strncmp(argv[0], "pwd", len))
+//		return (builtin_pwd(argv));
+	if (!ft_strncmp(argv[0], "export", len))
+		return (builtin_export(argv));
+//	if (!ft_strncmp(argv[0], "unset", len))
+//		return (builtin_unset(argv));
+//	if (!ft_strncmp(argv[0], "env", len))
+//		return (builtin_env(argv));
+//	if (!ft_strncmp(argv[0], "exit", len))
+//		return (builtin_exit(argv));
+	return (EXIT_FAILURE);
+}
 
 int	execute_compound_command(t_tree *root, sem_t *sem_print)
 {
@@ -97,7 +130,8 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 		if (travel->as_token->type == TOK_INPUT || travel->as_token->type == TOK_OVERWRITE || travel->as_token->type == TOK_APPEND || travel->as_token->type == TOK_HEREDOC)
 		{
 			travel->next->as_token->str = ft_replace_char(travel->next->as_token->str, SPACE_REPLACE, ' ');
-			setup_redirections(travel->next->as_token->str, travel->as_token->type);
+			if (!(setup_redirections(travel->next->as_token->str, travel->as_token->type)))
+				return (1);
 			travel = travel->next;
 			i++;
 		}
@@ -111,20 +145,48 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 	}
 	argv = (char **)deque_to_arr(argv_deque);
 	sem_wait(sem_print);
-	ft_dprintf(2, "executed\n");
-	print_arr_fd(argv, 2);
+	//ft_dprintf(2, "executed\n"); //debug
+	//print_arr_fd(argv, 2); //debug
 	sem_post(sem_print);
 //	return (0);
-	// Check for built-in commands
-	if (argv[0] && !ft_strcmp(argv[0], "cd")) {
-		return builtin_cd(argv, 1);  // Assuming 1 is the file descriptor for stdout
-	} else {
-		sem_wait(sem_print);
-		ft_dprintf(2, "executed\n");
-		print_arr_fd(argv, 2);
-		sem_post(sem_print);
-		return execute_simple_command(argv[0], argv);
+	if (is_builtin(argv[0]))
+		return (execute_builtin(argv));
+	else
+		execute_simple_command(argv[0], argv);
+	return (0);
+}
+
+int	execute_single_command(t_tree *root, sem_t *sem_print)
+{
+	pid_t	pid;
+	int		exit_status;
+	t_deque_node	*travel;
+	int				i;
+
+	if (root->child->head->as_tree->as_nt->type == NT_SIMPLE_COMMAND)
+	{
+		travel = root->child->head->as_tree->child->head;
+		i = 0;
+		while (i < root->child->head->as_tree->nb_child)
+		{
+			if (travel->as_tree->as_nt->type == NT_TERMINAL && travel->prev->as_tree->as_nt->type == NT_TERMINAL
+				&& travel->as_tree->as_nt->token->type == TOK_WORD && (i == 0 || travel->prev->as_tree->as_nt->token->type == TOK_WORD)
+				&& is_builtin(travel->as_tree->as_nt->token->str))
+				return (execute_simple_command_wrapper(root->child->head->as_tree, sem_print));
+			travel = travel->next;
+			i++;
+		}
 	}
+	pid = fork();
+	if (pid == 0)
+	{
+		exit_status = execute_simple_command_wrapper(root->child->head->as_tree, sem_print);
+		exit(WEXITSTATUS(exit_status));
+	}
+	while (wait(&exit_status) > 0)
+	{
+	}
+	return (WEXITSTATUS(exit_status));
 }
 
 int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
@@ -136,6 +198,8 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 	int				pipefd[2];
 	pid_t			pid;
 
+	if (root->nb_child == 1)
+		return (execute_single_command(root, sem_print));
 	travel = root->child->head;
 	i = 0;
 	prev_in_fd = -1;
@@ -196,8 +260,8 @@ int	execute_and_or_sequence(t_tree *root, sem_t *sem_print)
 		if ((!last_exit_status && travel->prev->as_tree->child->head->as_tree->as_nt->token->type == TOK_AND)
 			|| (last_exit_status && travel->prev->as_tree->child->head->as_tree->as_nt->token->type == TOK_OR))
 		{
-			ft_dprintf(2, "i = %i\n", i);
-			print_tree(travel->as_tree, 0);
+			//ft_dprintf(2, "i = %i\n", i); //debug
+			//print_tree(travel->as_tree, 0); //debug
 			last_exit_status = execute_pipe_sequence(travel->as_tree, sem_print);
 		}
 		i += 2;

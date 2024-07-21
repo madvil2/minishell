@@ -94,7 +94,7 @@ static t_deque **rules_init(void)
 	char	*line;
 	char	**arr;
 
-	res = calloc(NB_RULES + 1, sizeof(t_deque *));
+	res = ft_calloc(NB_RULES + 1, sizeof(t_deque *));
 	fd = open("./includes/minishell.h", O_RDONLY);
 	line = get_next_line(fd);
 	while (ft_strncmp(line, "# define NB_RULES", 17))
@@ -139,7 +139,7 @@ static t_deque *get_rule(t_nonterm_type nt, t_token_type token)
 	if (!rules)
 		rules = rules_init();
 	set_allocator(TEMP);
-	ft_printf("applying rule %d\n", parsing_table[nt][token]);
+	//ft_printf("applying rule %d\n", parsing_table[nt][token]); //debug
 	if (parsing_table[nt][token] == -1)
 		return (NULL);
 	return (rules[parsing_table[nt][token]]);
@@ -157,16 +157,16 @@ static void	ptree_add_node(t_tree **root, t_deque *rule, char *str_token)//
 		queue = deque_init();
 		*root = tree_node_init(nt_init(NT_S, NULL));
 		deque_push_node_right(queue, deque_node_init(*root));
-		print_queue(queue);
-		ft_printf("\n");
+		//print_queue(queue);// debug
+		//ft_printf("\n"); //debug
 		return ;
 	}
 	if (queue->head->as_tree->as_nt->type == NT_TERMINAL && str_token && !rule)
 	{
 		queue->head->as_tree->as_nt->token->str = ft_strdup(str_token);
 		deque_pop_right(queue);
-		print_queue(queue);
-		ft_printf("\n");
+		//print_queue(queue);// debug
+		//ft_printf("\n"); //debug
 		return ;
 	}
 	i = 0;
@@ -185,8 +185,8 @@ static void	ptree_add_node(t_tree **root, t_deque *rule, char *str_token)//
 		deque_push_node_right(queue, deque_node_init((void *)deque_travel->as_tree));
 		deque_travel = deque_travel->prev;
 	}
-	print_queue(queue);
-	ft_printf("\n");
+	//print_queue(queue); //debug
+	//ft_printf("\n"); //debug
 }
 
 t_tree	*pda_parse(t_deque *input)
@@ -201,8 +201,8 @@ t_tree	*pda_parse(t_deque *input)
 	stack = deque_init();
 	deque_push_node_left(input, deque_node_init(token_init(TOK_EOL, "$")));
 	deque_push_node_left(stack, deque_node_init(nt_init(NT_S, NULL)));
-	print_stack(stack);
-	print_input(input);
+	//print_stack(stack); //debug
+	//print_input(input); //debug
 	ptree_add_node(&root, NULL, NULL);
 	while (stack->size || input->size)
 	{
@@ -250,8 +250,8 @@ t_tree	*pda_parse(t_deque *input)
 			}
 			ptree_add_node(&root, rule, NULL);
 		}
-		print_stack(stack);
-		print_input(input);
+		//print_stack(stack); //debug
+		//print_input(input); //debug
 	}
 	return (root);
 }

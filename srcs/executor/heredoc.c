@@ -20,7 +20,7 @@ char	*create_heredoc(char *phrase)
 	int						fd;
 
 	filename = ft_strjoin("/tmp/heredoc_", ft_itoa(index));//add filename generator
-	fd = open(filename, O_RDWR | O_CREAT, 0644);
+	fd = open(filename, O_RDWR | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1)
 	{
 		ft_dprintf(2, "Error while creating heredoc file\n");

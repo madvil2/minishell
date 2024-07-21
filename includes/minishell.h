@@ -6,7 +6,7 @@
 /*   By: kokaimov <kokaimov@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/27 04:49:31 by kokaimov          #+#    #+#             */
-/*   Updated: 2024/06/23 23:08:07 by kokaimov         ###   ########.fr       */
+/*   Updated: 2024/04/27 04:57:25 by kokaimov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@
 # include <semaphore.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 # define TRUE 1
 # define FALSE 0
@@ -201,6 +202,7 @@ void	print_arr_fd(char **arr, int fd);
 
 //execute_ptree.c
 int	execute_simple_command_wrapper(t_tree *root, sem_t *print_sem);
+int	execute_single_command(t_tree *root, sem_t *sem_print);
 int	execute_pipe_sequence(t_tree *root, sem_t *print_sem);
 int	execute_and_or_sequence(t_tree *root, sem_t *print_sem);
 int	execute_complete_command(t_tree *root, sem_t *print_sem);
@@ -212,8 +214,8 @@ void	setup_redirections(char *str, t_token_type type);
 //heredoc.c
 char	*create_heredoc(char *phrase);
 
-// cd.c
-int builtin_cd(char **argv, int fd_out);
-char *normalize(char *path);
+//builtins
+int	builtin_echo(char **argv);
+int	builtin_export(char **argv);
 
 #endif
