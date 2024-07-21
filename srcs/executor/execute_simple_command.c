@@ -31,7 +31,7 @@ static int  setup_input(char *path, t_token_type type)
 		if (in_fd != STDIN_FILENO)
 			close(in_fd);
 	}
-    return (1);
+	return (1);
 }
 
 static int	setup_output(char *path, t_token_type type)
@@ -44,7 +44,7 @@ static int	setup_output(char *path, t_token_type type)
 		out_fd = open(path, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (out_fd < 0)
 	{
-        ft_dprintf(2, "%s: Permission denied\n", path);
+	ft_dprintf(2, "%s: Permission denied\n", path);
 		return (0);
 	}
 	if (dup2(out_fd, STDOUT_FILENO) < 0)
@@ -54,24 +54,24 @@ static int	setup_output(char *path, t_token_type type)
 	}
 	if (out_fd != STDOUT_FILENO)
 		close(out_fd);
-    return (1);
+	return (1);
 }
 
 int setup_redirections(char *str, t_token_type type)
 {
-    struct stat buf;
+	struct stat buf;
 
-    stat(str, &buf);
-    if (S_ISDIR(buf.st_mode))
-    {
-        ft_dprintf(2, "%s: is a directory\n", str);
-        return (0);
-    }
+	stat(str, &buf);
+	if (S_ISDIR(buf.st_mode))
+	{
+		ft_dprintf(2, "%s: is a directory\n", str);
+		return (0);
+	}
 	if (type == TOK_INPUT || type == TOK_HEREDOC)
 		return (setup_input(str, type));
 	else if (type == TOK_OVERWRITE || type == TOK_APPEND)
 		return (setup_output(str, type));
-    return (-1);
+	return (-1);
 }
 
 static char	*search_executable(char *program, char **path_parts)
@@ -111,7 +111,7 @@ int	execute_simple_command(char *program, char **argv)
 	exp_prefix[0] = EXP_REPLACE;
 	exp_prefix[1] = 0;
 	path_parts = ft_split(envp_find(ft_strjoin(exp_prefix, "PATH")), ':');
-	executable_path = search_executable(program, path_parts);
+	executable_path = search_executable(program, path_parts);// todo: remove searching if theres '/' in the path
 	if (!executable_path)
 	{
 		ft_dprintf(STDERR_FILENO, "%s: ", program);

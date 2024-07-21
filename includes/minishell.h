@@ -202,15 +202,20 @@ void	print_arr_fd(char **arr, int fd);
 
 //execute_ptree.c
 int	execute_simple_command_wrapper(t_tree *root, sem_t *print_sem);
+int	execute_single_command(t_tree *root, sem_t *sem_print);
 int	execute_pipe_sequence(t_tree *root, sem_t *print_sem);
 int	execute_and_or_sequence(t_tree *root, sem_t *print_sem);
 int	execute_complete_command(t_tree *root, sem_t *print_sem);
 
 //execute_simple_command.c
 int		execute_simple_command(char *program, char **argv);
-int     setup_redirections(char *str, t_token_type type);
+int		setup_redirections(char *str, t_token_type type);
 
 //heredoc.c
 char	*create_heredoc(char *phrase);
+
+//builtins
+int	builtin_echo(char **argv);
+int	builtin_export(char **argv);
 
 #endif

@@ -15,6 +15,7 @@
 void	envp_print(void)
 {
 	ht_print(get_envp(NULL));
+	ft_printf("size is %i\n", get_envp(NULL)->nb_entry);
 }
 
 t_ht	*get_envp(char **env)
@@ -24,10 +25,10 @@ t_ht	*get_envp(char **env)
 
 	if (!ht_envp)
 	{
+		set_allocator(PERM);
 		ht_envp = ht_init(100);
 		while (*env)
 		{
-			set_allocator(PERM);
 			equal_pos = -1;
 			while ((*env)[++equal_pos])
 				if ((*env)[equal_pos] == '=')
@@ -46,7 +47,7 @@ void	envp_add(const char *key, const char *value)
 
 	ht_envp = get_envp(NULL);
 	set_allocator(PERM);
-	ht_add(ht_envp, (char *)key, (char *)value);
+	ht_add(ht_envp, ft_strdup(key), ft_strdup(value));
 	set_allocator(TEMP);
 }
 
