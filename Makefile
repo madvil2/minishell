@@ -15,7 +15,7 @@ HFILES :=			minishell
 SUB_PATH :=			.\
 					parsing\
 					executor\
-					executor/builtins
+					builtins\
 
 FILES :=			main\
 					minishell\
