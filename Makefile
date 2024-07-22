@@ -21,7 +21,7 @@ FILES :=			main\
 					minishell\
 					exec_pipe\
 					signals\
-					env\
+					envp\
 					tokenize\
 					expand_env_vars\
 					globbing\
@@ -34,6 +34,9 @@ FILES :=			main\
 					heredoc\
 					echo\
 					export\
+					unset\
+					env\
+					exit\
 
 LIB :=				$(LIB_PATH)libft.a
 

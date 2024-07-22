@@ -95,7 +95,7 @@ static t_deque **rules_init(void)
 	char	**arr;
 
 	res = ft_calloc(NB_RULES + 1, sizeof(t_deque *));
-	fd = open("./includes/minishell.h", O_RDONLY);
+	fd = open("/home/nam-vu/CLionProjects/minishell/includes/minishell.h", O_RDONLY);
 	line = get_next_line(fd);
 	while (ft_strncmp(line, "# define NB_RULES", 17))
 		line = get_next_line(fd);

@@ -36,12 +36,12 @@ static int execute_builtin(char **argv)
 //		return (builtin_pwd(argv));
 	if (!ft_strncmp(argv[0], "export", len))
 		return (builtin_export(argv));
-//	if (!ft_strncmp(argv[0], "unset", len))
-//		return (builtin_unset(argv));
-//	if (!ft_strncmp(argv[0], "env", len))
-//		return (builtin_env(argv));
-//	if (!ft_strncmp(argv[0], "exit", len))
-//		return (builtin_exit(argv));
+	if (!ft_strncmp(argv[0], "unset", len))
+		return (builtin_unset(argv));
+	if (!ft_strncmp(argv[0], "env", len))
+		return (builtin_env(argv));
+	if (!ft_strncmp(argv[0], "exit", len))
+		return (builtin_exit(argv));
 	return (EXIT_FAILURE);
 }
 

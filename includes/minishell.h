@@ -157,7 +157,7 @@ t_deque	*tokenize(const char *str);
 //expand_env_vars.c
 void	expand_env_vars(t_deque *tokens);
 
-//env.c
+//envp.c
 void	envp_print(void);
 t_ht	*get_envp(char **env);
 void	envp_add(const char *key, const char *value);
@@ -217,5 +217,8 @@ char	*create_heredoc(char *phrase);
 //builtins
 int	builtin_echo(char **argv);
 int	builtin_export(char **argv);
+int	builtin_unset(char **argv);
+int	builtin_env(char **argv);
+int	builtin_exit(char **argv);
 
 #endif
