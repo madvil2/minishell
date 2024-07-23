@@ -26,6 +26,7 @@ int	main(int argc, char **argv, char **envp)
 	sem_init(sem_print, 1, 1);
 	if ((argc && argv))
 		argc = 0;
+	signals_hook();
 	set_allocator(PERM);
 	get_envp(envp);
 	set_allocator(TEMP);

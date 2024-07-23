@@ -24,7 +24,10 @@
 static void	sigint_handle(int sig)
 {
 	(void)sig;
-//	rl_done = 1; // Signal to readline that it should return immediately. //not working on macos
+	ft_dprintf(STDOUT_FILENO, "\n");
+	rl_on_new_line();
+	rl_replace_line("", 0);
+	rl_redisplay();
 }
 
 void	signals_hook(void)
@@ -43,7 +46,6 @@ void	signals_hook(void)
 	sa_ignore.sa_flags = 0; // Clear flags to default.
 	sa_ignore.sa_handler = SIG_IGN; // Ignore these signals.
 	sigaction(SIGQUIT, &sa_ignore, NULL);
-	sigaction(SIGTSTP, &sa_ignore, NULL); // Ignore Ctrl+Z.
 }
 
 //int	main()

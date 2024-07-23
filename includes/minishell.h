@@ -222,4 +222,7 @@ int	builtin_env(char **argv);
 int	builtin_exit(char **argv);
 int	builtin_pwd(char **argv);
 
+//signals.c
+void	signals_hook(void);
+
 #endif
