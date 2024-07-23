@@ -37,6 +37,7 @@ FILES :=			main\
 					unset\
 					env\
 					exit\
+					pwd\
 
 LIB :=				$(LIB_PATH)libft.a
 

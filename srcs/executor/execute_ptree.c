@@ -32,8 +32,8 @@ static int execute_builtin(char **argv)
 		return (builtin_echo(argv));
 //	if (!ft_strncmp(argv[0], "cd", len))
 //		return (builtin_cd(argv));
-//	if (!ft_strncmp(argv[0], "pwd", len))
-//		return (builtin_pwd(argv));
+	if (!ft_strncmp(argv[0], "pwd", len))
+		return (builtin_pwd(argv));
 	if (!ft_strncmp(argv[0], "export", len))
 		return (builtin_export(argv));
 	if (!ft_strncmp(argv[0], "unset", len))
