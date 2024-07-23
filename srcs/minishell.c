@@ -33,6 +33,13 @@ int	main(int argc, char **argv, char **envp)
 	while (1)
 	{
 		rl_line_buf = readline("( ͡° ͜ʖ ͡°) ");
+		if (!rl_line_buf)
+		{
+			gc_free(TEMP);
+			gc_free(PERM);
+			ft_dprintf(STDOUT_FILENO, "exit\n");
+			exit(EXIT_SUCCESS);
+		}
 		add_history(rl_line_buf);
 		dumpster_push(*get_dumpster(TEMP), rl_line_buf);
 		set_allocator(PERM);
