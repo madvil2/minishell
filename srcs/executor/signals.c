@@ -11,17 +11,8 @@
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-#include <signal.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <readline/readline.h>
 
-//static int	event_hook(void)
-//{
-//	return (0); // Continues readline's loop unless interrupted.
-//}
-
-static void	sigint_handle(int sig)
+static void interactive_interrupt(int sig)
 {
 	(void)sig;
 	ft_dprintf(STDOUT_FILENO, "\n");
@@ -30,38 +21,19 @@ static void	sigint_handle(int sig)
 	rl_redisplay();
 }
 
-void	signals_hook(void)
+static void interactive_interrupt_heredoc(int sig)
 {
-	struct sigaction	sa_int;
-	struct sigaction	sa_ignore;
-
-//	rl_event_hook = event_hook; // Set readline's event hook.//not working on macos
-	// Setup SIGINT handling
-	sigemptyset(&sa_int.sa_mask);
-	sa_int.sa_flags = 0; // Clear flags to default.
-	sa_int.sa_handler = sigint_handle; // Assign signal handler for SIGINT.
-	sigaction(SIGINT, &sa_int, NULL);
-	// Ignore SIGQUIT signals.
-	sigemptyset(&sa_ignore.sa_mask);
-	sa_ignore.sa_flags = 0; // Clear flags to default.
-	sa_ignore.sa_handler = SIG_IGN; // Ignore these signals.
-	sigaction(SIGQUIT, &sa_ignore, NULL);
+	exit(sig);
 }
 
-//int	main()
-//{
-//	signals_hook();
-//
-//	while (1)
-//	{
-//		char *input = readline("(◕‿◕)> ");
-//		if (!input) {
-//			printf("exit\n");
-//			break;
-//		}
-//		if (*input) {
-//			printf("You entered: %s\n", input);
-//		}
-//		free(input);
-//	}
-//}
+
+void heredoc_signals_hook()
+{
+	sigaction(SIGINT, &(t_sa){.sa_handler = interactive_interrupt_heredoc}, NULL);
+}
+
+void signals_hook()
+{
+	sigaction(SIGQUIT, &(t_sa){.sa_handler = SIG_IGN}, NULL);
+	sigaction(SIGINT, &(t_sa){.sa_handler = interactive_interrupt}, NULL);
+}

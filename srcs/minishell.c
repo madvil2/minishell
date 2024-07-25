@@ -21,18 +21,20 @@ int	main(int argc, char **argv, char **envp)
 	char	*rl_line_buf;
 	char	**lines;
 
+	signals_hook();
 	if (!sem_print)
 		return (ft_dprintf(2, "sem init failed\n"));
 	sem_init(sem_print, 1, 1);
 	if ((argc && argv))
 		argc = 0;
-	signals_hook();
 	set_allocator(PERM);
 	get_envp(envp);
+	envp_print();
 	set_allocator(TEMP);
 	rl_line_buf = NULL;
 	while (1)
 	{
+		envp_add("HEREDOC_ABORTED", "FALSE");
 		rl_line_buf = readline("( ͡° ͜ʖ ͡°) ");
 		if (!rl_line_buf)
 		{
@@ -57,10 +59,13 @@ int	main(int argc, char **argv, char **envp)
 //			print_tree(ptree, 0); //debug
 //			ft_printf("\n"); //debug
 			//ft_printf("after flattening:\n"); //debug
-			ptree = ptree_flattening(ptree);
-			//print_tree(ptree, 0); //debug
-//			ft_printf("\n"); //debug
-			execute_complete_command(ptree->child->head->as_tree, sem_print);
+			if (ptree)
+			{
+				ptree = ptree_flattening(ptree);
+				//print_tree(ptree, 0); //debug
+				//ft_printf("\n"); //debug
+				execute_complete_command(ptree->child->head->as_tree, sem_print);
+			}
 			gc_free(TEMP);
 			lines++;
 		}

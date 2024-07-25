@@ -216,7 +216,11 @@ t_tree	*pda_parse(t_deque *input)
 			if (stack->head->as_nt->token->type == input->head->as_token->type)
 			{
 				if (input->head->as_token->type == TOK_HEREDOC && input->head->next->as_token->type == TOK_WORD)
+				{
 					input->head->next->as_token->str = create_heredoc(input->head->next->as_token->str);
+					if (input->head->next->as_token->str[0] == 0)
+						return (NULL);
+				}
 				ptree_add_node(&root, NULL, input->head->as_token->str);
 				deque_pop_right(input);
 				deque_pop_right(stack);
@@ -224,7 +228,7 @@ t_tree	*pda_parse(t_deque *input)
 			else//syntax_error
 			{
 				ft_printf("minishell: syntax error near %s\n", input->head->as_token->str);
-				exit(127);
+				return (NULL);
 			}
 		}
 		else
@@ -233,7 +237,7 @@ t_tree	*pda_parse(t_deque *input)
 			if (!rule)
 			{
 				ft_printf("minishell: syntax error near %s\n", input->head->as_token->str);
-				exit(127);
+				return (NULL);
 			}
 			if (rule->head->as_nt->type != stack->head->as_nt->type)
 			{

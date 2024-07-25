@@ -52,6 +52,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <termios.h>
 
 # define TRUE 1
 # define FALSE 0
@@ -73,6 +75,7 @@ typedef struct s_token		t_token;
 typedef struct s_ptree_node	t_ptree_node;
 typedef enum e_nonterm_type	t_nonterm_type;
 typedef struct s_nonterm	t_nonterm;
+typedef struct sigaction	t_sa;
 
 enum e_token_type
 {
@@ -212,7 +215,7 @@ int		execute_simple_command(char *program, char **argv);
 int		setup_redirections(char *str, t_token_type type);
 
 //heredoc.c
-char	*create_heredoc(char *phrase);
+char	*create_heredoc(char *delimiter);
 
 //builtins
 int	builtin_echo(char **argv);
@@ -223,6 +226,7 @@ int	builtin_exit(char **argv);
 int	builtin_pwd(char **argv);
 
 //signals.c
-void	signals_hook(void);
+void signals_hook();
+void heredoc_signals_hook();
 
 #endif
