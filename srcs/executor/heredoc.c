@@ -12,17 +12,16 @@
 
 #include "../../includes/minishell.h"
 
-char	*read_from_heredoc(char *phrase)
+char	*read_from_heredoc(char *phrase, long long int index)
 {
 	char					*filename;
 	char					*line;
-	static long long int	index;
 	int						fd;
 	char					exp_prefix[2];
 
 	exp_prefix[0] = EXP_REPLACE;
 	exp_prefix[1] = 0;
-	filename = ft_strjoin("/tmp/heredoc_", ft_itoa(index));//add filename generator
+	filename = ft_strjoin("/tmp/heredoc_", ft_itoa((int)index));
 	fd = open(filename, O_RDWR | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1)
 	{
@@ -49,11 +48,12 @@ char	*read_from_heredoc(char *phrase)
 
 char *create_heredoc(char *phrase)
 {
-	pid_t	pid;
-	int		pipefd[2];
-	char	*filename;
-	char	buf[1024];
-	int		status;
+	pid_t					pid;
+	int						pipefd[2];
+	char					*filename;
+	char					buf[1024];
+	int						status;
+	static long long int	index;
 
 	ft_bzero(buf, 1024);
 	pipe(pipefd);
@@ -62,11 +62,12 @@ char *create_heredoc(char *phrase)
 	if (pid == 0)
 	{
 		heredoc_signals_hook();
-		filename = read_from_heredoc(phrase);
+		filename = read_from_heredoc(phrase, index);
 		ft_dprintf(pipefd[1], "%s", filename);
 		exit(0);
 	}
 	wait(&status);
+	index++;
 	signals_hook();
 	rl_done = 1;
 	rl_replace_line("", 0);
