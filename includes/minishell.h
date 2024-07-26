@@ -226,7 +226,9 @@ int	builtin_exit(char **argv);
 int	builtin_pwd(char **argv);
 
 //signals.c
-void signals_hook();
-void heredoc_signals_hook();
+void	signals_hook();
+void	heredoc_signals_hook();
+void	ignore_sigint();
+void	child_signals_hook();
 
 #endif

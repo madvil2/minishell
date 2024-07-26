@@ -81,6 +81,7 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 	t_deque			*argv_deque;
 	char			**argv;
 
+	child_signals_hook();
 	new_child = deque_init();
 	travel = root->child->head;
 	i = -1;
@@ -178,6 +179,7 @@ int	execute_single_command(t_tree *root, sem_t *sem_print)
 		}
 	}
 	pid = fork();
+	ignore_sigint();
 	if (pid == 0)
 	{
 		exit_status = execute_simple_command_wrapper(root->child->head->as_tree, sem_print);
@@ -186,6 +188,7 @@ int	execute_single_command(t_tree *root, sem_t *sem_print)
 	while (wait(&exit_status) > 0)
 	{
 	}
+	signals_hook();
 	return (WEXITSTATUS(exit_status));
 }
 
@@ -203,6 +206,7 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 	travel = root->child->head;
 	i = 0;
 	prev_in_fd = -1;
+	ignore_sigint();
 	while (i < root->nb_child)
 	{
 		if (i < root->nb_child - 1)
@@ -242,6 +246,7 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 	while (wait(&exit_status) > 0)
 	{
 	}
+	signals_hook();
 	return (WEXITSTATUS(exit_status));
 }
 

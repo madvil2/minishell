@@ -22,6 +22,7 @@ int	main(int argc, char **argv, char **envp)
 	char	**lines;
 
 	signals_hook();
+	rl_clear_history();
 	if (!sem_print)
 		return (ft_dprintf(2, "sem init failed\n"));
 	sem_init(sem_print, 1, 1);
@@ -41,6 +42,7 @@ int	main(int argc, char **argv, char **envp)
 			gc_free(TEMP);
 			gc_free(PERM);
 			ft_dprintf(STDOUT_FILENO, "exit\n");
+			rl_clear_history();
 			exit(EXIT_SUCCESS);
 		}
 		add_history(rl_line_buf);
@@ -72,4 +74,5 @@ int	main(int argc, char **argv, char **envp)
 	}
 	sem_close(sem_print);
 	gc_free(PERM);
+	rl_clear_history();
 }

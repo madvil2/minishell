@@ -41,7 +41,7 @@ char	*read_from_heredoc(char *phrase)
 
 		ft_putstr_fd(line, fd);
 		ft_putchar_fd('\n', fd);
-//		dumpster_push(*get_dumpster(TEMP), line);
+		dumpster_push(*get_dumpster(TEMP), line);
 	}
 	close(fd);
 	return (filename);
@@ -49,7 +49,7 @@ char	*read_from_heredoc(char *phrase)
 
 char *create_heredoc(char *phrase)
 {
-	pid_t pid;
+	pid_t	pid;
 	int		pipefd[2];
 	char	*filename;
 	char	buf[1024];
@@ -58,7 +58,7 @@ char *create_heredoc(char *phrase)
 	ft_bzero(buf, 1024);
 	pipe(pipefd);
 	pid = fork();
-	sigaction(SIGINT, &(t_sa){.sa_handler = SIG_IGN}, NULL);
+	ignore_sigint();
 	if (pid == 0)
 	{
 		heredoc_signals_hook();
