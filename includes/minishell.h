@@ -13,32 +13,31 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+
 # define NB_RULES 23
-/*
-0. <S> ::= <complete_command> $
-1. <complete_command> ::= ''
-2. <complete_command> ::= <and_or_sequence>
-3. <and_or_sequence> ::= <pipe_sequence> <and_or_sequence_tail>
-4. <and_or_sequence_tail> ::= ''
-5. <and_or_sequence_tail> ::= <and_or> <pipe_sequence> <and_or_sequence_tail>
-6. <and_or> ::= &&
-7. <and_or> ::= ||
-8. <pipe_sequence> ::= <simple_command> <pipe_sequence_tail>
-9. <pipe_sequence_tail> ::= ''
-10. <pipe_sequence_tail> ::= | <simple_command> <pipe_sequence_tail>
-11. <simple_command> ::= ( <and_or_sequence> ) <compound_command_tail>
-12. <simple_command> ::= <io_redirect> TOK_WORD <simple_command_tail>
-13. <simple_command_tail> ::= TOK_WORD <simple_command_tail>
-14. <simple_command> ::= TOK_WORD <simple_command_tail>
-15. <simple_command_tail> ::= <io_redirect> TOK_WORD <simple_command_tail>
-16. <simple_command_tail> ::= ''
-17. <compound_command_tail> ::= <io_redirect> TOK_WORD <compound_command_tail>
-18. <compound_command_tail> ::= ''
-19. <io_redirect> ::= <
-20. <io_redirect> ::= >
-21. <io_redirect> ::= <<
-22. <io_redirect> ::= >>
-*/
+# define GRAMMAR_RULES "0. <S> ::= <complete_command> $\n\
+1. <complete_command> ::= ''\n\
+2. <complete_command> ::= <and_or_sequence>\n\
+3. <and_or_sequence> ::= <pipe_sequence> <and_or_sequence_tail>\n\
+4. <and_or_sequence_tail> ::= ''\n\
+5. <and_or_sequence_tail> ::= <and_or> <pipe_sequence> <and_or_sequence_tail>\n\
+6. <and_or> ::= &&\n\
+7. <and_or> ::= ||\n\
+8. <pipe_sequence> ::= <simple_command> <pipe_sequence_tail>\n\
+9. <pipe_sequence_tail> ::= ''\n\
+10. <pipe_sequence_tail> ::= | <simple_command> <pipe_sequence_tail>\n\
+11. <simple_command> ::= ( <and_or_sequence> ) <compound_command_tail>\n\
+12. <simple_command> ::= <io_redirect> TOK_WORD <simple_command_tail>\n\
+13. <simple_command_tail> ::= TOK_WORD <simple_command_tail>\n\
+14. <simple_command> ::= TOK_WORD <simple_command_tail>\n\
+15. <simple_command_tail> ::= <io_redirect> TOK_WORD <simple_command_tail>\n\
+16. <simple_command_tail> ::= ''\n\
+17. <compound_command_tail> ::= <io_redirect> TOK_WORD <compound_command_tail>\n\
+18. <compound_command_tail> ::= ''\n\
+19. <io_redirect> ::= <\n\
+20. <io_redirect> ::= >\n\
+21. <io_redirect> ::= <<\n\
+22. <io_redirect> ::= >>"
 
 # include <stdio.h>
 # include <readline/readline.h>
