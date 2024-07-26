@@ -81,6 +81,7 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 	t_deque			*argv_deque;
 	char			**argv;
 
+	(void)sem_print;
 	child_signals_hook();
 	new_child = deque_init();
 	travel = root->child->head;
@@ -145,10 +146,10 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 		i++;
 	}
 	argv = (char **)deque_to_arr(argv_deque);
-	sem_wait(sem_print);
+//	sem_wait(sem_print);
 	//ft_dprintf(2, "executed\n"); //debug
 	//print_arr_fd(argv, 2); //debug
-	sem_post(sem_print);
+//	sem_post(sem_print);
 //	return (0);
 	if (is_builtin(argv[0]))
 		return (execute_builtin(argv));

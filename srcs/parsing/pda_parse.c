@@ -89,23 +89,17 @@ static t_nonterm *nt_recognizer(char *str)
 static t_deque **rules_init(void)
 {
 	t_deque	**res;
-	int		fd;
 	int		i;
-	char	*line;
 	char	**arr;
+	char	**rules;
 
 	res = ft_calloc(NB_RULES + 1, sizeof(t_deque *));
-	fd = open("/home/nam-vu/CLionProjects/minishell/includes/minishell.h", O_RDONLY);
-	line = get_next_line(fd);
-	while (ft_strncmp(line, "# define NB_RULES", 17))
-		line = get_next_line(fd);
-	line = get_next_line(fd);
-	line = get_next_line(fd);
+	rules = ft_split(GRAMMAR_RULES, '\n');
 	i = 0;
-	while (ft_strncmp(line, "*/\n", 4))
+	while (rules[i])
 	{
 		res[i] = deque_init();
-		arr = ft_split(line, ' ');
+		arr = ft_split(rules[i], ' ');
 		arr++;
 		while (*arr)
 		{
@@ -114,15 +108,13 @@ static t_deque **rules_init(void)
 			arr++;
 		}
 		i++;
-		line = get_next_line(fd);
 	}
-	close(fd);
 	return (res);
 }
 
 static t_deque *get_rule(t_nonterm_type nt, t_token_type token)
 {
-	static t_deque	**rules;
+	t_deque	**rules;
 	static int		parsing_table[11][11] = {{0, -1, -1, -1, 0, -1, 0, 0, 0, 0, 0},
 		{1, -1, -1, -1, 2, -1, 2, 2, 2, 2, 2},
 		{-1, -1, -1, -1, 3, -1, 3, 3, 3, 3, 3},
@@ -135,10 +127,8 @@ static t_deque *get_rule(t_nonterm_type nt, t_token_type token)
 		{18, 18, 18, 18, -1, 18, -1, 17, 17, 17, 17},
 		{-1, -1, -1, -1, -1, -1, -1, 20, 22, 19, 21}};
 
-	set_allocator(PERM);
-	if (!rules)
-		rules = rules_init();
 	set_allocator(TEMP);
+	rules = rules_init();
 	//ft_printf("applying rule %d\n", parsing_table[nt][token]); //debug
 	if (parsing_table[nt][token] == -1)
 		return (NULL);

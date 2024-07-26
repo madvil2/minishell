@@ -65,12 +65,12 @@ static char	*ft_arr_to_str(int size, char **strs, char *sep)
 
 	if (size <= 0)
 	{
-		res = (char *)malloc(1 * sizeof(char));
+		res = (char *)ft_malloc(1 * sizeof(char));
 		res[0] = 0;
 		return (res);
 	}
 	size_str = get_size_str(size, strs, sep) + 1;
-	res = (char *)malloc((size_str) * sizeof(char));
+	res = (char *)ft_malloc((size_str) * sizeof(char));
 	if (!res)
 		return (0);
 	i = 0;

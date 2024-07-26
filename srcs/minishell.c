@@ -16,21 +16,20 @@ int	main(int argc, char **argv, char **envp)
 {
 	t_deque	*tokens;
 	t_tree	*ptree;
-	sem_unlink(SEM_NAME);
-	sem_t	*sem_print = sem_open(SEM_NAME, O_CREAT | O_EXCL, 0700, 1);
+//	sem_unlink(SEM_NAME);
+//	sem_t	*sem_print = sem_open(SEM_NAME, O_CREAT | O_EXCL, 0700, 1);
 	char	*rl_line_buf;
 	char	**lines;
 
 	signals_hook();
 	rl_clear_history();
-	if (!sem_print)
-		return (ft_dprintf(2, "sem init failed\n"));
-	sem_init(sem_print, 1, 1);
+//	if (!sem_print)
+//		return (ft_dprintf(2, "sem init failed\n"));
+//	sem_init(sem_print, 1, 1);
 	if ((argc && argv))
 		argc = 0;
 	set_allocator(PERM);
 	get_envp(envp);
-	envp_print();
 	set_allocator(TEMP);
 	rl_line_buf = NULL;
 	while (1)
@@ -66,13 +65,14 @@ int	main(int argc, char **argv, char **envp)
 				ptree = ptree_flattening(ptree);
 				//print_tree(ptree, 0); //debug
 				//ft_printf("\n"); //debug
-				execute_complete_command(ptree->child->head->as_tree, sem_print);
+				execute_complete_command(ptree->child->head->as_tree, NULL);//sem_print for debugging
 			}
+			ft_printf("freeing temp\n");
 			gc_free(TEMP);
 			lines++;
 		}
 	}
-	sem_close(sem_print);
+//	sem_close(sem_print);
 	gc_free(PERM);
 	rl_clear_history();
 }

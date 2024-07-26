@@ -19,7 +19,12 @@ int	builtin_exit(char **argv)
 
 	ft_dprintf(STDOUT_FILENO, "exit\n");
 	if (!argv[1])
+	{
+		gc_free(PERM);
+		gc_free(TEMP);
+		rl_clear_history();
 		exit(EXIT_SUCCESS);
+	}
 	if (argv[2])
 	{
 		ft_dprintf(STDERR_FILENO, "exit: too many arguments\n");
@@ -37,6 +42,8 @@ int	builtin_exit(char **argv)
 		i++;
 	}
 	exit_status = ft_atoi(argv[1]);
-	ft_printf("exit status is %i\n", exit_status);
+	gc_free(PERM);
+	gc_free(TEMP);
+	rl_clear_history();
 	exit(exit_status);
 }
