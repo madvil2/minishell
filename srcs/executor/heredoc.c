@@ -26,6 +26,9 @@ char	*read_from_heredoc(char *phrase, long long int index)
 	if (fd == -1)
 	{
 		ft_dprintf(2, "Error while creating heredoc file\n");
+		gc_free(TEMP);
+		gc_free(PERM);
+		rl_clear_history();
 		exit (EXIT_FAILURE);
 	}
 	while (TRUE)
@@ -35,9 +38,10 @@ char	*read_from_heredoc(char *phrase, long long int index)
 		{
 			if (!line)
 				ft_dprintf(STDERR_FILENO, "warning: here-document delimited by end-of-file (wanted `%s')\n", phrase);
+			else
+				dumpster_push(*get_dumpster(TEMP), line);
 			break ;
 		}
-
 		ft_putstr_fd(line, fd);
 		ft_putchar_fd('\n', fd);
 		dumpster_push(*get_dumpster(TEMP), line);
@@ -55,25 +59,31 @@ char *create_heredoc(char *phrase)
 	int						status;
 	static long long int	index;
 
+	status = HEREDOC_ABORTED_STATUS;
 	ft_bzero(buf, 1024);
 	pipe(pipefd);
 	pid = fork();
-	ignore_sigint();
+	noninteractive_signals_hook();
 	if (pid == 0)
 	{
-		heredoc_signals_hook();
+		close(pipefd[0]);
+		child_signals_hook();
 		filename = read_from_heredoc(phrase, index);
 		ft_dprintf(pipefd[1], "%s", filename);
+		close(pipefd[1]);
+		gc_free(TEMP);
+		gc_free(PERM);
+		rl_clear_history();
 		exit(0);
 	}
-	wait(&status);
+	close(pipefd[1]);
+	waitpid(pid, &status, 0);
 	index++;
-	signals_hook();
-	rl_done = 1;
-	rl_replace_line("", 0);
-	if (WIFSIGNALED(WEXITSTATUS(status)))
+	interactive_signals_hook();
+	if (status == HEREDOC_ABORTED_STATUS)
 		envp_add("HEREDOC_ABORTED", "TRUE");
 	else
 		read(pipefd[0], buf, 1024);
+	close(pipefd[0]);
 	return (ft_strdup(buf));
 }

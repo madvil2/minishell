@@ -21,7 +21,7 @@ int	main(int argc, char **argv, char **envp)
 	char	*rl_line_buf;
 	char	**lines;
 
-	signals_hook();
+	interactive_signals_hook();
 	rl_clear_history();
 //	if (!sem_print)
 //		return (ft_dprintf(2, "sem init failed\n"));
@@ -67,7 +67,6 @@ int	main(int argc, char **argv, char **envp)
 				//ft_printf("\n"); //debug
 				execute_complete_command(ptree->child->head->as_tree, NULL);//sem_print for debugging
 			}
-			ft_printf("freeing temp\n");
 			gc_free(TEMP);
 			lines++;
 		}

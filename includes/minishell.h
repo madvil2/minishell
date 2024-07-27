@@ -69,6 +69,9 @@
 # define GLOB_START '['
 # define GLOB_END ']'
 
+
+# define HEREDOC_ABORTED_STATUS 15
+
 typedef enum e_token_type	t_token_type;
 typedef struct s_token		t_token;
 typedef struct s_ptree_node	t_ptree_node;
@@ -225,9 +228,9 @@ int	builtin_exit(char **argv);
 int	builtin_pwd(char **argv);
 
 //signals.c
-void	signals_hook();
+void	interactive_signals_hook();
 void	heredoc_signals_hook();
 void	ignore_sigint();
 void	child_signals_hook();
-
+void	noninteractive_signals_hook();
 #endif

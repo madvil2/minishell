@@ -15,6 +15,8 @@ static int is_builtin(char *str)
 {
 	int len;
 
+	if (!str)
+		return (0);
 	len = ft_strlen(str) + 1;
 	if (!ft_strncmp(str, "echo", len) || !ft_strncmp(str, "cd", len) || !ft_strncmp(str, "pwd", len)
 		|| !ft_strncmp(str, "export", len) || !ft_strncmp(str, "unset", len)
@@ -68,7 +70,13 @@ int	execute_compound_command(t_tree *root, sem_t *sem_print)
 //	sem_post(sem_print);
 	pid = fork();
 	if (pid == 0)
-		exit(execute_and_or_sequence(root->child->head->next->as_tree, sem_print));
+	{
+		status = execute_and_or_sequence(root->child->head->next->as_tree, sem_print);
+		gc_free(TEMP);
+		gc_free(PERM);
+		rl_clear_history();
+		exit(status);
+	}
 	wait(&status);
 	return (WEXITSTATUS(status));
 }
@@ -82,7 +90,6 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 	char			**argv;
 
 	(void)sem_print;
-	child_signals_hook();
 	new_child = deque_init();
 	travel = root->child->head;
 	i = -1;
@@ -160,8 +167,8 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 
 int	execute_single_command(t_tree *root, sem_t *sem_print)
 {
-	pid_t	pid;
-	int		exit_status;
+	pid_t			pid;
+	int				exit_status;
 	t_deque_node	*travel;
 	int				i;
 
@@ -179,17 +186,20 @@ int	execute_single_command(t_tree *root, sem_t *sem_print)
 			i++;
 		}
 	}
+	noninteractive_signals_hook();
 	pid = fork();
-	ignore_sigint();
 	if (pid == 0)
 	{
 		exit_status = execute_simple_command_wrapper(root->child->head->as_tree, sem_print);
+		gc_free(PERM);
+		gc_free(TEMP);
+		rl_clear_history();
 		exit(WEXITSTATUS(exit_status));
 	}
 	while (wait(&exit_status) > 0)
 	{
 	}
-	signals_hook();
+	interactive_signals_hook();
 	return (WEXITSTATUS(exit_status));
 }
 
@@ -207,7 +217,7 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 	travel = root->child->head;
 	i = 0;
 	prev_in_fd = -1;
-	ignore_sigint();
+	noninteractive_signals_hook();
 	while (i < root->nb_child)
 	{
 		if (i < root->nb_child - 1)
@@ -231,6 +241,9 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 				exit_status = execute_compound_command(travel->as_tree, sem_print);
 			else
 				exit_status = execute_simple_command_wrapper(travel->as_tree, sem_print);
+			gc_free(TEMP);
+			gc_free(PERM);
+			rl_clear_history();
 			exit(WEXITSTATUS(exit_status));
 		}
 		if (prev_in_fd != -1)
@@ -247,7 +260,7 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 	while (wait(&exit_status) > 0)
 	{
 	}
-	signals_hook();
+	interactive_signals_hook();
 	return (WEXITSTATUS(exit_status));
 }
 

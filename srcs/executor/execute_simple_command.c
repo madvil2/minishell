@@ -92,10 +92,8 @@ static char	*search_executable(char *program, char **path_parts)
 	{
 		path = ft_strjoin(*path_parts, "/");
 		executable_path = ft_strjoin(path, program);
-//		free(path); not needed
 		if (access(executable_path, X_OK) == 0)//&& stat(executable_path, &statbuf) == 0 && S_ISREG(statbuf.st_mode)
 			return (executable_path);
-		free(executable_path);
 		path_parts++;
 	}
 	return (NULL);
@@ -112,7 +110,6 @@ char	**ht_to_envp(t_ht *ht)
 		perror("ft_calloc");
 		return (NULL);
 	}
-
 	j = 0;
 	i = 0;
 	while (i < ht->size)
@@ -131,31 +128,34 @@ char	**ht_to_envp(t_ht *ht)
 
 int	execute_simple_command(char *program, char **argv)
 {
-	int		status;
 	char	**path_parts;
 	char	*executable_path;
 	char	**envp;
-	pid_t	pid;
 	char	exp_prefix[2];
 
+	if (!program)
+	{
+		gc_free(TEMP);
+		gc_free(PERM);
+		rl_clear_history();
+		return (0);
+	}
+	child_signals_hook();
 	exp_prefix[0] = EXP_REPLACE;
 	exp_prefix[1] = 0;
 	path_parts = ft_split(envp_find(ft_strjoin(exp_prefix, "PATH")), ':');
 	executable_path = search_executable(program, path_parts);// todo: remove searching if theres '/' in the path
 	if (!executable_path)
-		return (ft_dprintf(STDERR_FILENO, "%s: Command not found\n", program), 127);
-	envp = ht_to_envp(get_envp(NULL));
-	pid = fork();
-	if (pid == 0)
 	{
-		execve(executable_path, argv, envp);
-		perror("execve");
-		exit(EXIT_FAILURE);
+		ft_dprintf(STDERR_FILENO, "%s: Command not found\n", program);
+		return (127);
 	}
-	else if (pid > 0)
-		waitpid(pid, &status, 0);
-	else
-		perror("fork");
-	free_matrix(envp);
+	set_allocator(PERM);
+	envp = ht_to_envp(get_envp(NULL));
+	set_allocator(TEMP);
+//	sleep(10000);
+	execve(executable_path, argv, envp);
+	perror("execve");
+	exit(EXIT_FAILURE);
 	return (0);
 }

@@ -17,8 +17,7 @@ SUB_PATH :=			.\
 					executor\
 					builtins\
 
-FILES :=			main\
-					minishell\
+FILES :=			minishell\
 					exec_pipe\
 					signals\
 					envp\
