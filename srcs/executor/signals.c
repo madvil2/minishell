@@ -30,14 +30,6 @@ static void noninteractive_interrupt(int sig)
 	rl_done = 1;
 }
 
-static void interactive_interrupt_heredoc(int sig)
-{
-	gc_free(TEMP);
-	gc_free(PERM);
-	rl_clear_history();
-	exit(sig);
-}
-
 static void interactive_interrupt_child(int sig)
 {
 	(void)sig;
@@ -47,21 +39,10 @@ static void interactive_interrupt_child(int sig)
 	exit(sig);
 }
 
-void	ignore_sigint()
-{
-	sigaction(SIGINT, &(t_sa){.sa_handler = SIG_IGN}, NULL);
-}
-
-void	heredoc_signals_hook()
-{
-	sigaction(SIGINT, &(t_sa){.sa_handler = interactive_interrupt_heredoc}, NULL);
-}
-
 void	noninteractive_signals_hook()
 {
 	sigaction(SIGINT, &(t_sa){.sa_handler = noninteractive_interrupt}, NULL);
 }
-
 
 void	child_signals_hook()
 {

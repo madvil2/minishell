@@ -78,7 +78,7 @@ int	execute_compound_command(t_tree *root, sem_t *sem_print)
 		exit(status);
 	}
 	wait(&status);
-	return (WEXITSTATUS(status));
+	return (status);
 }
 
 int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
@@ -160,15 +160,13 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 //	return (0);
 	if (is_builtin(argv[0]))
 		return (execute_builtin(argv));
-	else
-		execute_simple_command(argv[0], argv);
-	return (0);
+	return (execute_simple_command(argv[0], argv));
 }
 
 int	execute_single_command(t_tree *root, sem_t *sem_print)
 {
 	pid_t			pid;
-	int				exit_status;
+	int				status;
 	t_deque_node	*travel;
 	int				i;
 
@@ -187,27 +185,28 @@ int	execute_single_command(t_tree *root, sem_t *sem_print)
 		}
 	}
 	noninteractive_signals_hook();
+	status = 0;
 	pid = fork();
 	if (pid == 0)
 	{
-		exit_status = execute_simple_command_wrapper(root->child->head->as_tree, sem_print);
+		status = execute_simple_command_wrapper(root->child->head->as_tree, sem_print);
 		gc_free(PERM);
 		gc_free(TEMP);
 		rl_clear_history();
-		exit(WEXITSTATUS(exit_status));
+		exit(status);
 	}
-	while (wait(&exit_status) > 0)
+	while (wait(&status) > 0)
 	{
 	}
 	interactive_signals_hook();
-	return (WEXITSTATUS(exit_status));
+	return (status);
 }
 
 int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 {
 	int				i;
 	t_deque_node	*travel;
-	int				exit_status;
+	int				status;
 	int				prev_in_fd;
 	int				pipefd[2];
 	pid_t			pid;
@@ -238,13 +237,13 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 				close(pipefd[PIPE_WRITE]);
 			}
 			if (travel->as_tree->child->head->as_tree->as_nt->type == NT_TERMINAL && travel->as_tree->child->head->as_tree->as_nt->token->type == TOK_L_PAREN)
-				exit_status = execute_compound_command(travel->as_tree, sem_print);
+				status = execute_compound_command(travel->as_tree, sem_print);
 			else
-				exit_status = execute_simple_command_wrapper(travel->as_tree, sem_print);
+				status = execute_simple_command_wrapper(travel->as_tree, sem_print);
 			gc_free(TEMP);
 			gc_free(PERM);
 			rl_clear_history();
-			exit(WEXITSTATUS(exit_status));
+			exit(status);
 		}
 		if (prev_in_fd != -1)
 			close(prev_in_fd);
@@ -257,11 +256,11 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 		travel = travel->next->next;
 		i += 2;
 	}
-	while (wait(&exit_status) > 0)
+	while (wait(&status) > 0)
 	{
 	}
 	interactive_signals_hook();
-	return (WEXITSTATUS(exit_status));
+	return (status);
 }
 
 int	execute_and_or_sequence(t_tree *root, sem_t *sem_print)
@@ -285,7 +284,7 @@ int	execute_and_or_sequence(t_tree *root, sem_t *sem_print)
 		}
 		i += 2;
 	}
-	return (EXIT_SUCCESS);
+	return (last_exit_status);
 }
 
 int	execute_complete_command(t_tree *root, sem_t *sem_print)
@@ -293,7 +292,10 @@ int	execute_complete_command(t_tree *root, sem_t *sem_print)
 	if (root->child->head->as_tree->as_nt->type == NT_TERMINAL && root->child->head->as_tree->as_nt->token->type == TOK_EPSILON)
 		return (EXIT_SUCCESS);
 	if (root->child->head->as_tree->as_nt->type == NT_AND_OR_SEQUENCE)
-		return (execute_and_or_sequence(root->child->head->as_tree, sem_print));
+	{
+		int status = execute_and_or_sequence(root->child->head->as_tree, sem_print);
+		return (status);
+	}
 	ft_dprintf(2, "ti eblan\n");
 	return (EXIT_FAILURE);
 }

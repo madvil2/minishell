@@ -13,7 +13,6 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-
 # define NB_RULES 23
 # define GRAMMAR_RULES "0. <S> ::= <complete_command> $\n\
 1. <complete_command> ::= ''\n\
@@ -69,6 +68,8 @@
 # define GLOB_START '['
 # define GLOB_END ']'
 
+# define GET_STATUS 0
+# define SET_STATUS 1
 
 # define HEREDOC_ABORTED_STATUS 15
 
@@ -233,4 +234,8 @@ void	heredoc_signals_hook();
 void	ignore_sigint();
 void	child_signals_hook();
 void	noninteractive_signals_hook();
+
+//exit_status.c
+int	exit_status(int flag, int value);
+
 #endif

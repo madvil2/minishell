@@ -144,7 +144,7 @@ int	execute_simple_command(char *program, char **argv)
 	exp_prefix[0] = EXP_REPLACE;
 	exp_prefix[1] = 0;
 	path_parts = ft_split(envp_find(ft_strjoin(exp_prefix, "PATH")), ':');
-	executable_path = search_executable(program, path_parts);// todo: remove searching if theres '/' in the path
+	executable_path = search_executable(program, path_parts);
 	if (!executable_path)
 	{
 		ft_dprintf(STDERR_FILENO, "%s: Command not found\n", program);
@@ -153,7 +153,6 @@ int	execute_simple_command(char *program, char **argv)
 	set_allocator(PERM);
 	envp = ht_to_envp(get_envp(NULL));
 	set_allocator(TEMP);
-//	sleep(10000);
 	execve(executable_path, argv, envp);
 	perror("execve");
 	exit(EXIT_FAILURE);

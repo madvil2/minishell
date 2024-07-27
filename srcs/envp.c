@@ -69,8 +69,8 @@ char	*envp_find(const char *key)
 		return (ft_strdup("$"));
 	if (!ft_isalpha(key[1]) && key[1] != '?')
 		return (ft_strdup(""));
-//	if (key[1] == '?' && !key[2])
-//		expand_signal();
+	if (key[1] == '?' && !key[2])
+		return (ft_itoa(exit_status(GET_STATUS, 0)));
 	ht_envp = get_envp(NULL);
 	if (!ht_get(ht_envp, (char *)(key + 1)))
 		return (ft_strdup(""));

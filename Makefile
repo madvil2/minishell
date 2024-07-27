@@ -37,6 +37,7 @@ FILES :=			minishell\
 					env\
 					exit\
 					pwd\
+					exit_status\
 
 LIB :=				$(LIB_PATH)libft.a
 
