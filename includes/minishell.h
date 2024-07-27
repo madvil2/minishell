@@ -230,8 +230,6 @@ int	builtin_pwd(char **argv);
 
 //signals.c
 void	interactive_signals_hook();
-void	heredoc_signals_hook();
-void	ignore_sigint();
 void	child_signals_hook();
 void	noninteractive_signals_hook();
 

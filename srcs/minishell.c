@@ -23,6 +23,7 @@ int	main(int argc, char **argv, char **envp)
 
 	interactive_signals_hook();
 	rl_clear_history();
+	rl_on_new_line();
 //	if (!sem_print)
 //		return (ft_dprintf(2, "sem init failed\n"));
 //	sem_init(sem_print, 1, 1);
@@ -35,7 +36,8 @@ int	main(int argc, char **argv, char **envp)
 	while (1)
 	{
 		envp_add("HEREDOC_ABORTED", "FALSE");
-		rl_line_buf = readline("( ͡° ͜ʖ ͡°) ");
+//		rl_line_buf = readline("( ͡° ͜ʖ ͡°) ");
+		rl_line_buf = readline("type shit: ");
 		if (!rl_line_buf)
 		{
 			gc_free(TEMP);
@@ -47,7 +49,7 @@ int	main(int argc, char **argv, char **envp)
 		add_history(rl_line_buf);
 		dumpster_push(*get_dumpster(TEMP), rl_line_buf);
 		set_allocator(PERM);
-		lines = ft_split(rl_line_buf, '\n');
+		lines = ft_split(rl_line_buf, '\n');//change back to newline
 		set_allocator(TEMP);
 		while (*lines)
 		{
