@@ -59,10 +59,11 @@ int	execute_compound_command(t_tree *root, sem_t *sem_print)
 	while (i < root->nb_child)
 	{
 
-		setup_redirections(travel->next->as_tree->as_nt->token->str, travel->as_tree->child->head->as_tree->as_nt->token->type);
+		setup_redirections(travel->next->as_tree->as_nt->token->str, travel->as_tree->child->head->as_tree->as_nt->token->type, CHANGE_REDIR);
 		travel = travel->next->next;
 		i += 2;
 	}
+	setup_redirections(NULL, 0, SET_REDIR);
 //	sem_wait(sem_print);
 //	ft_dprintf(2, "setup redirection %i/%i: %s type: %i\n", i, root->nb_child, travel->next->as_tree->as_nt->token->str, travel->as_tree->child->head->as_tree->as_nt->token->type);
 //	ft_dprintf(2, "executing subshell\n");
@@ -139,7 +140,7 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 		if (travel->as_token->type == TOK_INPUT || travel->as_token->type == TOK_OVERWRITE || travel->as_token->type == TOK_APPEND || travel->as_token->type == TOK_HEREDOC)
 		{
 			travel->next->as_token->str = ft_replace_char(travel->next->as_token->str, SPACE_REPLACE, ' ');
-			if (!(setup_redirections(travel->next->as_token->str, travel->as_token->type)))
+			if (!(setup_redirections(travel->next->as_token->str, travel->as_token->type, CHANGE_REDIR)))
 				return (1);
 			travel = travel->next;
 			i++;
@@ -152,6 +153,7 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 		travel = travel->next;
 		i++;
 	}
+	setup_redirections(NULL, 0, SET_REDIR);
 	argv = (char **)deque_to_arr(argv_deque);
 //	sem_wait(sem_print);
 	//ft_dprintf(2, "executed\n"); //debug

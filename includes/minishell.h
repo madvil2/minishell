@@ -71,6 +71,9 @@
 # define GET_STATUS 0
 # define SET_STATUS 1
 
+# define CHANGE_REDIR 0
+# define SET_REDIR 1
+
 # define HEREDOC_ABORTED_STATUS 15
 
 typedef enum e_token_type	t_token_type;
@@ -215,7 +218,7 @@ int	execute_complete_command(t_tree *root, sem_t *print_sem);
 
 //execute_simple_command.c
 int		execute_simple_command(char *program, char **argv);
-int		setup_redirections(char *str, t_token_type type);
+int		setup_redirections(char *str, t_token_type type, int flag);
 
 //heredoc.c
 char	*create_heredoc(char *delimiter);

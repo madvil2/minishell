@@ -12,66 +12,94 @@
 
 #include "../../includes/minishell.h"
 
-static int  setup_input(char *path, t_token_type type)
+static int  setup_input(char *path, t_token_type type, int flag)
 {
-	int	in_fd;
+	static int	in_fd;
+	int			temp;
+	struct stat	buf;
 
+	if (flag == SET_REDIR)
+	{
+		if (dup2(in_fd, STDIN_FILENO) < 0)
+		{
+			perror("dup2 error");
+			exit(EXIT_FAILURE);
+		}
+		if (in_fd != STDIN_FILENO && in_fd != STDOUT_FILENO)
+			close(in_fd);
+		return (0);
+	}
+	stat(path, &buf);
+	if (S_ISDIR(buf.st_mode))
+	{
+		ft_dprintf(2, "%s: is a directory\n", path);
+		return (0);
+	}
 	if (type == TOK_INPUT || type == TOK_HEREDOC)
 	{
+		temp = in_fd;
 		in_fd = open(path, O_RDONLY);
 		if (in_fd < 0)
 		{
 			ft_dprintf(2, "%s: no such file or directory\n", path);
 			return (0);
 		}
-		if (dup2(in_fd, STDIN_FILENO) < 0)
-		{
-			perror("dup2 error");
-			exit(EXIT_FAILURE);
-		}
-		if (in_fd != STDIN_FILENO)
-			close(in_fd);
+		if (temp != STDIN_FILENO && temp != STDOUT_FILENO)
+			close(temp);
 	}
 	return (1);
 }
 
-static int	setup_output(char *path, t_token_type type)
+static int	setup_output(char *path, t_token_type type, int flag)
 {
-	int	out_fd;
+	static int	out_fd;
+	struct stat	buf;
+	int			temp;
 
+	if (flag == SET_REDIR)
+	{
+		if (dup2(out_fd, STDOUT_FILENO) < 0)
+		{
+			perror("dup2 output");
+			exit(EXIT_FAILURE);
+		}
+		if (out_fd != STDOUT_FILENO && out_fd != STDIN_FILENO)
+			close(out_fd);
+		return (0);
+	}
+	temp = out_fd;
 	if (type == TOK_OVERWRITE)
 		out_fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	else
 		out_fd = open(path, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (out_fd < 0)
 	{
-	ft_dprintf(2, "%s: Permission denied\n", path);
+		ft_dprintf(2, "%s: Permission denied\n", path);
 		return (0);
 	}
-	if (dup2(out_fd, STDOUT_FILENO) < 0)
+	if (temp != STDIN_FILENO && temp != STDOUT_FILENO)
+		close(temp);
+	stat(path, &buf);
+	if (S_ISDIR(buf.st_mode))
 	{
-		perror("dup2 output");
-		exit(EXIT_FAILURE);
+		ft_dprintf(2, "%s: is a directory\n", path);
+		return (0);
 	}
-	if (out_fd != STDOUT_FILENO)
-		close(out_fd);
 	return (1);
 }
 
-int setup_redirections(char *str, t_token_type type)
+int setup_redirections(char *str, t_token_type type, int flag)
 {
-	struct stat buf;
-
-	stat(str, &buf);
-	if (S_ISDIR(buf.st_mode))
+	if (flag == SET_REDIR)
 	{
-		ft_dprintf(2, "%s: is a directory\n", str);
+		setup_input(str, type, SET_REDIR);
+		setup_output(str, type, SET_REDIR);
 		return (0);
 	}
 	if (type == TOK_INPUT || type == TOK_HEREDOC)
-		return (setup_input(str, type));
+		return (setup_input(str, type, flag));
 	else if (type == TOK_OVERWRITE || type == TOK_APPEND)
-		return (setup_output(str, type));
+		return (setup_output(str, type, flag));
 	return (-1);
 }
 
