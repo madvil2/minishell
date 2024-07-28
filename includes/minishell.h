@@ -6,7 +6,7 @@
 /*   By: kokaimov <kokaimov@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/27 04:49:31 by kokaimov          #+#    #+#             */
-/*   Updated: 2024/04/27 04:57:25 by kokaimov         ###   ########.fr       */
+/*   Updated: 2024/07/28 22:15:52 by kokaimov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,8 @@
 # define CUR_OUT 8
 # define STDIN_SAVE 16
 # define STDOUT_SAVE 32
+
+# define MAX_PATH 1024
 
 typedef enum e_token_type	t_token_type;
 typedef struct s_token		t_token;
@@ -260,6 +262,7 @@ int			builtin_unset(char **argv);
 int			builtin_env(char **argv);
 int			builtin_exit(char **argv);
 int			builtin_pwd(char **argv);
+int			builtin_cd(char **argv);
 
 //signals
 //1

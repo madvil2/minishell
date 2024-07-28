@@ -6,20 +6,17 @@
 /*   By: kokaimov <kokaimov@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 19:13:58 by kokaimov          #+#    #+#             */
-/*   Updated: 2024/06/23 23:07:06 by kokaimov         ###   ########.fr       */
+/*   Updated: 2024/07/28 22:11:57 by kokaimov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-int minishell_error(int status, bool should_exit, const char *format, ...) {
-	va_list args;
-	va_start(args, format);
-	ft_dprintf(2, format, args);  // Changed to ft_dprintf
-	va_end(args);
-	if (should_exit)
-		exit(status);
-	return status;
+static char lastdir[MAX_PATH] = "";
+
+int minishell_error(const char *message) {
+	ft_dprintf(2, "%s\n", message);
+	return 1;
 }
 
 char *get_var(const char *key) {
@@ -31,43 +28,64 @@ void set_var(const char *key, const char *value, int flags) {
 	envp_add(key, value);
 }
 
-int builtin_cd(char **argv, int fd_out) {
-	char *var;
+int builtin_cd(char **argv) {
+	char curdir[MAX_PATH];
+	char path[MAX_PATH];
+	char *arg;
 	int status;
-	char *name;
-	char *pwd;
 
-	name = *argv++;
-	if (argv[1] != NULL)
-		return minishell_error(1, false, "%s: too many arguments\n", name);
-	if (*argv == NULL) {
-		var = get_var("HOME");
-		if (!var)
-			return minishell_error(1, false, "%s: HOME not set\n", name);
-		status = chdir(var);
-	} else if (!ft_strcmp(*argv, "-")) {
-		var = get_var("OLDPWD");
-		if (!var)
-			return minishell_error(1, false, "%s: OLDPWD not set\n", name);
-		ft_dprintf(fd_out, "%s\n", var);
-		status = chdir(var);
-	} else {
-		status = chdir(*argv);
+	// Get the current working directory
+	if (getcwd(curdir, sizeof curdir) == NULL) {
+		*curdir = '\0';
 	}
-	if (status == -1)
-		return minishell_error(1, false, "%s: %s: No such file or directory\n", name, *argv);
-	else {
-		pwd = get_var("PWD") ? get_var("PWD") : getcwd(NULL, 0);
-		set_var("OLDPWD", pwd, 0);
-		if (**argv == '/' || (argv[1] && !ft_strcmp(argv[1], "-"))) {
-			set_var("PWD", normalize(*argv), 0);
+
+	// Check for too many arguments
+	if (argv[1] != NULL && argv[2] != NULL) {
+		return minishell_error("cd: too many arguments");
+	}
+
+	// Handle the argument
+	arg = argv[1];
+	if (arg == NULL) {
+		arg = get_var("HOME");
+		if (!arg) {
+			return minishell_error("cd: HOME not set");
+		}
+	} else if (!strcmp(arg, "-")) {
+		if (*lastdir == '\0') {
+			return minishell_error("cd: OLDPWD not set");
+		}
+		arg = lastdir;
+		ft_dprintf(STDOUT_FILENO, "%s\n", arg);
+	} else if (*arg == '~') {
+		if (arg[1] == '/' || arg[1] == '\0') {
+			snprintf(path, sizeof path, "%s%s", get_var("HOME"), arg + 1);
+			arg = path;
 		} else {
-			char *new_path = ft_strjoin(pwd, "/");
-			char *final_path = ft_strjoin(new_path, *argv);
-			set_var("PWD", normalize(final_path), 0);
-			free(new_path);
-			free(final_path);
+			return minishell_error("cd: syntax not supported");
 		}
 	}
+
+	// Change the directory
+	status = chdir(arg);
+	if (status == -1) {
+		ft_dprintf(2, "cd: %s: No such file or directory\n", arg);
+		return 1;
+	}
+
+	// Update lastdir only if the directory change was successful
+	if (*curdir != '\0') {
+		strcpy(lastdir, curdir);
+	}
+
+	// Set OLDPWD and PWD
+	if (getcwd(curdir, sizeof curdir) != NULL) {
+		set_var("PWD", curdir, 0);
+		set_var("OLDPWD", lastdir, 0);
+	} else {
+		ft_dprintf(2, "cd: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory\n");
+		set_var("PWD", arg, 0); // Fallback if getcwd fails
+	}
+
 	return 0;
 }

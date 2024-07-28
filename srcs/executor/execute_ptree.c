@@ -34,8 +34,8 @@ int	execute_builtin(char **argv)
 	len = ft_strlen(argv[0]) + 1;
 	if (!ft_strncmp(argv[0], "echo", len))
 		return (builtin_echo(argv));
-//	if (!ft_strncmp(argv[0], "cd", len))
-//		return (builtin_cd(argv));
+	if (!ft_strncmp(argv[0], "cd", len))
+		return (builtin_cd(argv));
 	if (!ft_strncmp(argv[0], "pwd", len))
 		return (builtin_pwd(argv));
 	if (!ft_strncmp(argv[0], "export", len))

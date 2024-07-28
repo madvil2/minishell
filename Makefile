@@ -48,6 +48,7 @@ FILES :=			minishell\
 					redirections\
 					redirections2\
 					redirections3\
+					cd\
 
 LIB :=				$(LIB_PATH)libft.a
 
