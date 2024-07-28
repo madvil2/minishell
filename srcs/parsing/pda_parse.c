@@ -21,18 +21,22 @@ static int	pop_epsilon(t_tree **root, t_deque **stack)
 
 static int	pop_both(t_tree **root, t_deque **input, t_deque **stack)
 {
-	if ((*input)->head->as_token->type == TOK_HEREDOC
-		&& (*input)->head->next->as_token->type == TOK_WORD)
+	if ((*stack)->head->as_nt->token->type == (*input)->head->as_token->type)
 	{
-		(*input)->head->next->as_token->str
-			= create_heredoc((*input)->head->next->as_token->str);
-		if ((*input)->head->next->as_token->str[0] == 0)
-			return (EXIT_FAILURE);
+		if ((*input)->head->as_token->type == TOK_HEREDOC
+			&& (*input)->head->next->as_token->type == TOK_WORD)
+		{
+			(*input)->head->next->as_token->str
+				= create_heredoc((*input)->head->next->as_token->str);
+			if ((*input)->head->next->as_token->str[0] == 0)
+				return (EXIT_FAILURE);
+		}
+		ptree_add_node(root, NULL, (*input)->head->as_token->str);
+		deque_pop_right(*input);
+		deque_pop_right(*stack);
+		return (EXIT_SUCCESS);
 	}
-	ptree_add_node(root, NULL, (*input)->head->as_token->str);
-	deque_pop_right(*input);
-	deque_pop_right(*stack);
-	return (EXIT_SUCCESS);
+	return (EXIT_FAILURE);
 }
 
 static int	expand_rule(t_tree **root, t_deque **input, t_deque **stack)
@@ -80,16 +84,15 @@ t_tree	*pda_parse(t_deque *input)
 		else if (stack->head->as_nt->type == NT_TERMINAL
 			&& stack->head->as_nt->token->type != TOK_EPSILON)
 		{
-			if (stack->head->as_nt->token->type == input->head->as_token->type)
-				if (pop_both(&root, &input, &stack))
-					return (ft_dprintf(STDERR_FILENO, "minishell: syntax error\
-						near %s\n", input->head->as_token->str), NULL);
+			if (pop_both(&root, &input, &stack))
+				return (ft_dprintf(STDERR_FILENO, "minishell: syntax error"
+						" near %s\n", input->head->as_token->str), NULL);
 		}
 		else
 		{
 			if (expand_rule(&root, &input, &stack))
-				return (ft_dprintf(STDERR_FILENO, "minishell: syntax error\
-						near %s\n", input->head->as_token->str), NULL);
+				return (ft_dprintf(STDERR_FILENO, "minishell: syntax error"
+						" near %s\n", input->head->as_token->str), NULL);
 		}
 	}
 	return (root);
