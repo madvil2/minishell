@@ -264,6 +264,12 @@ int			builtin_env(char **argv);
 int			builtin_exit(char **argv);
 int			builtin_pwd(char **argv);
 int			builtin_cd(char **argv);
+//cd_utils
+int			minishell_error(const char *message);
+char		*get_var(const char *key);
+void		set_var(const char *key, const char *value, int flags);
+char		*validate_cd_args(char **argv);
+char		*process_cd_arg(char *arg, char *lastdir, char *path);
 
 //signals
 //1

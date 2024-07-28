@@ -6,28 +6,64 @@
 /*   By: kokaimov <kokaimov@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 19:13:58 by kokaimov          #+#    #+#             */
-/*   Updated: 2024/07/28 22:35:33 by kokaimov         ###   ########.fr       */
+/*   Updated: 2024/07/28 23:41:28 by kokaimov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-int	minishell_error(const char *message)
+char	*parse_cd_args(char **argv, char *lastdir, char *path)
 {
-	ft_dprintf(2, "%s\n", message);
-	exit_status(SET_STATUS_FORCE, 1);
-	return (1);
+	char	*arg;
+
+	arg = validate_cd_args(argv);
+	if (!arg)
+		return (NULL);
+	arg = process_cd_arg(arg, lastdir, path);
+	return (arg);
 }
 
-char	*get_var(const char *key)
+int	get_current_directory(char *curdir)
 {
-	return (envp_find(key));
+	if (getcwd(curdir, MAX_PATH) == NULL)
+	{
+		*curdir = '\0';
+		return (minishell_error("cd: error retrieving current directory"));
+	}
+	return (0);
 }
 
-void	set_var(const char *key, const char *value, int flags)
+int	change_directory(char *arg)
 {
-	(void)flags;  // Cast to void to avoid unused parameter warning
-	envp_add(key, value);
+	int	status;
+
+	status = chdir(arg);
+	if (status == -1)
+	{
+		ft_dprintf(2, "cd: %s: No such file or directory\n", arg);
+		exit_status(SET_STATUS_FORCE, 1);
+		return (1);
+	}
+	return (0);
+}
+
+int	update_environment_vars(char *curdir, char *lastdir, char *arg)
+{
+	if (getcwd(curdir, MAX_PATH) != NULL)
+	{
+		set_var("PWD", curdir, 0);
+		set_var("OLDPWD", lastdir, 0);
+	}
+	else
+	{
+		ft_dprintf(2, "cd: error retrieving current directory: getcwd: "
+			"cannot access parent directories: No such file or directory\n");
+		set_var("PWD", arg, 0);
+		exit_status(SET_STATUS_FORCE, 1);
+		return (1);
+	}
+	exit_status(SET_STATUS_FORCE, 0);
+	return (0);
 }
 
 int	builtin_cd(char **argv)
@@ -36,7 +72,6 @@ int	builtin_cd(char **argv)
 	char		curdir[MAX_PATH];
 	char		path[MAX_PATH];
 	char		*arg;
-	int			status;
 
 	if (!lastdir)
 	{
@@ -44,65 +79,16 @@ int	builtin_cd(char **argv)
 		lastdir = ft_calloc(MAX_PATH + 1, 1);
 		set_allocator(TEMP);
 	}
-	// Get the current working directory
-	if (getcwd(curdir, sizeof curdir) == NULL)
-		*curdir = '\0';
-
-	// Check for too many arguments
-	if (argv[1] != NULL && argv[2] != NULL)
-		return (minishell_error("cd: too many arguments"));
-
-	// Handle the argument
-	arg = argv[1];
-	if (arg == NULL)
-	{
-		arg = get_var("HOME");
-		if (!arg)
-			return (minishell_error("cd: HOME not set"));
-	}
-	else if (!strcmp(arg, "-"))
-	{
-		if (*lastdir == '\0')
-			return (minishell_error("cd: OLDPWD not set"));
-		arg = lastdir;
-		ft_dprintf(STDOUT_FILENO, "%s\n", arg);
-	}
-	else if (*arg == '~')
-	{
-		if (arg[1] == '/' || arg[1] == '\0')
-		{
-			snprintf(path, sizeof path, "%s%s", get_var("HOME"), arg + 1);
-			arg = path;
-		}
-		else
-			return (minishell_error("cd: syntax not supported"));
-	}
-
-	// Change the directory
-	status = chdir(arg);
-	if (status == -1)
-	{
-		ft_dprintf(2, "cd: %s: No such file or directory\n", arg);
-		exit_status(SET_STATUS_FORCE, 1);
-		return 1;
-	}
-
-	// Update lastdir only if the directory change was successful
+	if (get_current_directory(curdir) != 0)
+		return (1);
+	arg = parse_cd_args(argv, lastdir, path);
+	if (!arg)
+		return (1);
+	if (change_directory(arg) != 0)
+		return (1);
 	if (*curdir != '\0')
 		strcpy(lastdir, curdir);
-
-	// Set OLDPWD and PWD
-	if (getcwd(curdir, sizeof curdir) != NULL)
-	{
-		set_var("PWD", curdir, 0);
-		set_var("OLDPWD", lastdir, 0);
-	}
-	else
-	{
-		ft_dprintf(2, "cd: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory\n");
-		set_var("PWD", arg, 0); // Fallback if getcwd fails
-		exit_status(SET_STATUS_FORCE, 1);
-	}
-	exit_status(SET_STATUS_FORCE, 0);
+	if (update_environment_vars(curdir, lastdir, arg) != 0)
+		return (1);
 	return (0);
 }
