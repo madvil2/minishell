@@ -31,6 +31,7 @@ int	execute_builtin(char **argv)
 {
 	int	len;
 
+	exit_status(SET_BUILTIN_FLAG, 1);
 	len = ft_strlen(argv[0]) + 1;
 	if (!ft_strncmp(argv[0], "echo", len))
 		return (builtin_echo(argv));

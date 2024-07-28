@@ -32,7 +32,13 @@ void	exit_cleanup(void)
 int	exit_status(int flag, int status)
 {
 	static int	exit_status;
+	static int	builtin_flag;
 
+	if (flag == SET_BUILTIN_FLAG)
+	{
+		builtin_flag = status;
+		return (EXIT_SUCCESS);
+	}
 	if (flag == SET_STATUS_FORCE)
 	{
 		exit_status = status;
@@ -40,7 +46,9 @@ int	exit_status(int flag, int status)
 	}
 	if (flag == SET_STATUS)
 	{
-		if (WIFEXITED(status))
+		if (builtin_flag)
+			exit_status = status;
+		else if (WIFEXITED(status))
 			exit_status = WEXITSTATUS(status);
 		else if (WIFSIGNALED(status))
 			exit_status = 128 + WTERMSIG(status);

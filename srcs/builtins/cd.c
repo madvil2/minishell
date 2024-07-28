@@ -15,6 +15,7 @@
 int	minishell_error(const char *message)
 {
 	ft_dprintf(2, "%s\n", message);
+	exit_status(SET_STATUS_FORCE, 1);
 	return (1);
 }
 
@@ -82,6 +83,7 @@ int	builtin_cd(char **argv)
 	if (status == -1)
 	{
 		ft_dprintf(2, "cd: %s: No such file or directory\n", arg);
+		exit_status(SET_STATUS_FORCE, 1);
 		return 1;
 	}
 
@@ -99,7 +101,8 @@ int	builtin_cd(char **argv)
 	{
 		ft_dprintf(2, "cd: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory\n");
 		set_var("PWD", arg, 0); // Fallback if getcwd fails
+		exit_status(SET_STATUS_FORCE, 1);
 	}
-
+	exit_status(SET_STATUS_FORCE, 0);
 	return (0);
 }

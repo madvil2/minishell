@@ -68,6 +68,7 @@
 # define GET_STATUS 0
 # define SET_STATUS 1
 # define SET_STATUS_FORCE 2
+# define SET_BUILTIN_FLAG 3
 
 # define SET_IN_FLAG 1
 # define SET_OUT_FLAG 2

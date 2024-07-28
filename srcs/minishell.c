@@ -6,7 +6,7 @@
 /*   By: kokaimov <kokaimov@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/27 04:50:07 by kokaimov          #+#    #+#             */
-/*   Updated: 2024/04/27 04:55:43 by kokaimov         ###   ########.fr       */
+/*   Updated: 2024/07/28 23:09:31 by kokaimov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,22 @@ static void	minishell_init2(char **rl_line_buf, char ***lines)
 	set_allocator(TEMP);
 }
 
+static void	minishell_loop(t_deque **tokens, t_tree **ptree, char ***lines)
+{
+	(*tokens) = tokenize(**lines);
+	*ptree = pda_parse((*tokens));
+	if (*ptree)
+	{
+		*ptree = ptree_flattening(*ptree);
+		exit_status(SET_STATUS,
+			execute_complete_command((*ptree)->child->head->as_tree));
+		exit_status(SET_BUILTIN_FLAG, 0);
+	}
+	else
+		exit_status(SET_STATUS_FORCE, 2);
+	gc_free(TEMP);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	t_deque	*tokens;
@@ -57,17 +73,7 @@ int	main(int argc, char **argv, char **envp)
 		minishell_init2(&rl_line_buf, &lines);
 		while (*lines)
 		{
-			tokens = tokenize(*lines);
-			ptree = pda_parse(tokens);
-			if (ptree)
-			{
-				ptree = ptree_flattening(ptree);
-				exit_status(SET_STATUS,
-					execute_complete_command(ptree->child->head->as_tree));
-			}
-			else
-				exit_status(SET_STATUS_FORCE, 2);
-			gc_free(TEMP);
+			minishell_loop(&tokens, &ptree, &lines);
 			lines++;
 		}
 	}
