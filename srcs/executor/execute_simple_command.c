@@ -14,13 +14,12 @@
 
 static char	*search_executable(char *program, char **path_parts)
 {
-//	struct stat	statbuf;
 	char		*path;
 	char		*executable_path;
 
 	if (ft_strchr(program, '/'))
 	{
-		if (access(program, X_OK) == 0)
+		if (access(program, F_OK) == 0)
 			return (ft_strdup(program));
 		else
 			return (NULL);
@@ -29,7 +28,7 @@ static char	*search_executable(char *program, char **path_parts)
 	{
 		path = ft_strjoin(*path_parts, "/");
 		executable_path = ft_strjoin(path, program);
-		if (access(executable_path, X_OK) == 0)//&& stat(executable_path, &statbuf) == 0 && S_ISREG(statbuf.st_mode)
+		if (access(executable_path, F_OK) == 0)
 			return (executable_path);
 		path_parts++;
 	}
@@ -79,8 +78,18 @@ int	execute_simple_command(char *program, char **argv)
 	executable_path = search_executable(program, path_parts);
 	if (!executable_path)
 	{
-		ft_dprintf(STDERR_FILENO, "%s: Command not found\n", program);
+		ft_dprintf(STDERR_FILENO, "%s: command not found\n", program);
 		return (127);
+	}
+	if (is_dir(executable_path))
+	{
+		ft_dprintf(STDERR_FILENO, "%s: Is a directory\n", program);
+		return (126);
+	}
+	if (access(executable_path, X_OK) != 0)
+	{
+		ft_dprintf(STDERR_FILENO, "%s: Permission denied\n", program);
+		return (126);
 	}
 	set_allocator(PERM);
 	envp = ht_to_envp(get_envp(NULL));

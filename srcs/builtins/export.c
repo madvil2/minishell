@@ -16,12 +16,12 @@ static int	check_key(char *key)
 {
 	int i;
 
-	if (!ft_isalpha(key[0]) && !(key[0] == '_'))
+	if (!ft_isalpha(key[0]) && key[0] != '_')
 		return (EXIT_FAILURE);
 	i = 1;
 	while (key[i])
 	{
-		if (!ft_isalnum(key[0]) && !(key[0] == '_'))
+		if (!ft_isalnum(key[i]) && key[i] != '_')
 			return (EXIT_FAILURE);
 		i++;
 	}
@@ -56,7 +56,6 @@ int	builtin_export(char **argv)// todo: export with no arguments
 			else
 				value = ft_strdup(argv[i] + eq_pos + 1);
 			envp_add(key, value);
-//			envp_print(); //debug
 		}
 		i++;
 	}

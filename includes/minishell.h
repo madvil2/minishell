@@ -59,22 +59,29 @@
 # define PIPE_WRITE 1
 # define PIPE_READ 0
 
-# define SEM_NAME "semich"
-
-# define IFS " \n\t"
-# define EXP_REPLACE '%'//change to random chars
-# define GLOB_REPLACE '#'
-# define SPACE_REPLACE '\t'
-# define GLOB_START '['
-# define GLOB_END ']'
+# define EXP_REPLACE 21//'%'
+# define GLOB_REPLACE 22//'#'
+# define SPACE_REPLACE 23//'\t'
+# define GLOB_START 24//'['
+# define GLOB_END 25//']'
 
 # define GET_STATUS 0
 # define SET_STATUS 1
+# define SET_STATUS_FORCE 2
 
-# define CHANGE_REDIR 0
+# define SET_IN_FLAG 1
+# define SET_OUT_FLAG 2
+# define RESET_IN_FLAG 4
+# define RESET_OUT_FLAG 8
+# define GET_IN_FLAG 16
+# define GET_OUT_FLAG 32
+
 # define SET_REDIR 1
-# define RESTORE_FD 2
-# define SAVE_FD 3
+# define GET_REDIR 2
+# define CUR_IN 4
+# define CUR_OUT 8
+# define STDIN_SAVE 16
+# define STDOUT_SAVE 32
 
 typedef enum e_token_type	t_token_type;
 typedef struct s_token		t_token;
@@ -210,11 +217,11 @@ void	print_tokens_fd(t_deque *tokens, int fd);
 void	print_arr_fd(char **arr, int fd);
 
 //execute_ptree.c
-int	execute_simple_command_wrapper(t_tree *root, sem_t *print_sem);
-int	execute_single_command(t_tree *root, sem_t *sem_print);
-int	execute_pipe_sequence(t_tree *root, sem_t *print_sem);
-int	execute_and_or_sequence(t_tree *root, sem_t *print_sem);
-int	execute_complete_command(t_tree *root, sem_t *print_sem);
+int	execute_simple_command_wrapper(t_tree *root);
+int	execute_single_command(t_tree *root);
+int	execute_pipe_sequence(t_tree *root);
+int	execute_and_or_sequence(t_tree *root);
+int	execute_complete_command(t_tree *root);
 
 //execute_simple_command.c
 int		execute_simple_command(char *program, char **argv);
@@ -238,21 +245,9 @@ void	noninteractive_signals_hook();
 //exit_status.c
 int		exit_status(int flag, int value);
 void	exit_cleanup();
-# define SET_IN_FLAG 1
-# define SET_OUT_FLAG 2
-# define RESET_IN_FLAG 4
-# define RESET_OUT_FLAG 8
-# define GET_IN_FLAG 16
-# define GET_OUT_FLAG 32
-
-# define SET_REDIR 1
-# define GET_REDIR 2
-# define CUR_IN 4
-# define CUR_OUT 8
-# define STDIN_SAVE 16
-# define STDOUT_SAVE 32
 
 //redirections.c
+int	is_dir(char *path);
 int	redir_flag(int flag);
 int	setup_redir(int fd, int flag);
 int	change_input(char *path, t_token_type type);

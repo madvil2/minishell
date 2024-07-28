@@ -12,25 +12,6 @@
 
 #include "../../includes/minishell.h"
 
-//static void	check_tree(t_tree *root)
-//{
-//	int				i;
-//	t_deque_node	*travel;
-//
-//	if (root->prev == NULL && root->as_nt->type != NT_S)
-//	{
-//		ft_printf("ti eblan");
-//		exit(0);
-//	}
-//	i = -1;
-//	travel = root->child->head;
-//	while (++i < root->nb_child)
-//	{
-//		check_tree(travel->as_tree);
-//		travel = travel->next;
-//	}
-//}
-
 static t_deque *get_sequence_childs(t_tree *root)
 {
 	t_tree			*travel;
@@ -52,7 +33,6 @@ static t_deque *get_sequence_childs(t_tree *root)
 		if (!travel->nb_child)
 			break ;
 		travel = travel->child->head->prev->as_tree;
-		//pop
 	}
 	return (res);
 }
@@ -72,7 +52,6 @@ t_tree	*ptree_flattening(t_tree *root)
 	if (sequence_childs)
 	{
 		tree_pop_child(&root);
-		i = -1;
 		while (sequence_childs->size)
 		{
 			tree_add_node(&root, sequence_childs->head->as_tree);

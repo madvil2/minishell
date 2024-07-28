@@ -26,9 +26,7 @@ char	*read_from_heredoc(char *phrase, long long int index)
 	if (fd == -1)
 	{
 		ft_dprintf(2, "Error while creating heredoc file\n");
-		gc_free(TEMP);
-		gc_free(PERM);
-		rl_clear_history();
+		exit_cleanup();
 		exit (EXIT_FAILURE);
 	}
 	while (TRUE)
@@ -71,10 +69,8 @@ char *create_heredoc(char *phrase)
 		filename = read_from_heredoc(phrase, index);
 		ft_dprintf(pipefd[1], "%s", filename);
 		close(pipefd[1]);
-		gc_free(TEMP);
-		gc_free(PERM);
-		rl_clear_history();
-		exit(0);
+		exit_cleanup();
+		exit(EXIT_SUCCESS);
 	}
 	close(pipefd[1]);
 	waitpid(pid, &status, 0);

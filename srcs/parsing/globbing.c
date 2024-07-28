@@ -111,7 +111,6 @@ static int	check_pattern(const char *str, const char *pattern)
 		while (new_pattern[j] && new_pattern[j] != GLOB_REPLACE)
 			j++;
 		set_allocator(TEMP);
-//		printf("searching for %s in %s\n", ft_strndup(new_pattern + i, j - i), new_str);
 		new_str = ft_strnstr(new_str, ft_strndup(new_pattern + i, j - i), ft_strlen(new_str) + 1);
 		if (!new_str)
 			return (FALSE);
@@ -150,12 +149,7 @@ static char	*glob_word(char *word)
 	while (++i < filenames->size)
 	{
 		if (check_pattern(travel->as_str, word))
-		{
-//			printf("%s is matching %s\n", travel->as_str, word);
 			deque_push_node_left(res_deque, deque_node_init(travel->as_str));
-		}
-//		else
-//			printf("%s is not matching %s\n", travel->as_str, word);
 		travel = travel->next;
 	}
 	if (!res_deque->size)
@@ -212,7 +206,7 @@ void	globbing(t_deque *tokens)
 			j = -1;
 			while (words[++j])
 				deque_push_node_left(res_words, deque_node_init(glob_word(words[j])));
-			travel->as_token->str = join_globbed_str(res_words, travel->as_token->str);
+			travel->as_token->str = ft_replace_char(join_globbed_str(res_words, travel->as_token->str), GLOB_REPLACE, '*');
 		}
 		travel = travel->next;
 	}

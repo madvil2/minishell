@@ -12,7 +12,7 @@
 
 #include "../../includes/minishell.h"
 
-static int	is_dir(char *path)
+int	is_dir(char *path)
 {
 	struct stat	buf;
 
@@ -49,8 +49,6 @@ int	setup_redir(int fd, int flag)
 	static int	stdin_save;
 	static int	stdout_save;
 
-//	ft_dprintf(2, "cur_in %i\n cur_out %i\n stdin_save %i\n stdout %i\n", cur_in, cur_out, stdin_save, stdout_save);
-//	ft_dprintf(2, "first %i, second %i\n", flag & GET_REDIR, flag & CUR_OUT);
 	if ((flag & SET_REDIR) && (flag & CUR_IN))
 		cur_in = fd;
 	else if ((flag & SET_REDIR) && (flag & CUR_OUT))
@@ -77,10 +75,9 @@ int	change_input(char *path, t_token_type type)
 	if (type == TOK_INPUT || type == TOK_HEREDOC)
 	{
 		temp = open(path, O_RDONLY);
-//		ft_dprintf(2, "open infile: %s fd: %i\n", path, temp);
 		if (temp < 0)
 		{
-			ft_dprintf(2, "%s: no such file or directory\n", path);
+			ft_dprintf(2, "%s: No such file or directory\n", path);
 			return (EXIT_FAILURE);
 		}
 		if (is_dir(path))
@@ -89,11 +86,7 @@ int	change_input(char *path, t_token_type type)
 			return (EXIT_FAILURE);
 		}
 		if (redir_flag(GET_IN_FLAG))
-		{
-//			ft_dprintf(2, "close infile fd: %i\n", setup_redir(-1, GET_REDIR | CUR_IN));
 			close(setup_redir(-1, GET_REDIR | CUR_IN));
-		}
-//		ft_dprintf(2, "change in fd %i\n", temp);
 		setup_redir(temp, SET_REDIR | CUR_IN);
 	}
 	redir_flag(SET_IN_FLAG);
@@ -110,20 +103,16 @@ int	change_output(char *path, t_token_type type)
 		temp = open(path, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (temp < 0)
 	{
-		ft_dprintf(2, "%s: Permission denied\n", path);
+		ft_dprintf(2, "%s: permission denied\n", path);
 		return (EXIT_FAILURE);
 	}
-//	ft_dprintf(2, "open outfile: %s fd: %i\n", path, temp);
 	if (is_dir(path))
 	{
 		ft_dprintf(2, "%s: is a directory\n", path);
 		return (EXIT_FAILURE);
 	}
 	if (redir_flag(GET_OUT_FLAG))
-	{
-//		ft_dprintf(2, "close outfile fd: %i\n", setup_redir(-1, GET_REDIR | CUR_OUT));
 		close(setup_redir(-1, GET_REDIR | CUR_OUT));
-	}
 	setup_redir(temp, SET_REDIR | CUR_OUT);
 	redir_flag(SET_OUT_FLAG);
 	return (EXIT_SUCCESS);
@@ -142,15 +131,12 @@ int	set_input()
 {
 	if (redir_flag(GET_IN_FLAG))
 	{
-//		ft_dprintf(2, "set input fd: %i\n", setup_redir(-1, GET_REDIR | CUR_IN));
 		if (dup2(setup_redir(-1, GET_REDIR | CUR_IN), STDIN_FILENO) < 0)
 		{
 			ft_dprintf(STDERR_FILENO, "dup2 set input error fd: %i\n", setup_redir(-1, GET_REDIR | CUR_IN));
 			exit(EXIT_FAILURE);
 		}
 	}
-//	else
-//		ft_dprintf(2, "no input redirections\n");
 	return (EXIT_SUCCESS);
 }
 
@@ -164,8 +150,6 @@ int	set_output()
 			exit(EXIT_FAILURE);
 		}
 	}
-//	else
-//		ft_dprintf(2, "no output redirections\n");
 	return (EXIT_SUCCESS);
 }
 
@@ -176,7 +160,6 @@ int	save_stdin()
 	if (redir_flag(GET_IN_FLAG))
 	{
 		temp = dup(STDIN_FILENO);
-//		ft_dprintf(2, "save stdin fd %i\n", temp);
 		if (temp < 0)
 		{
 			ft_dprintf(STDERR_FILENO, "dup save stdin error\n");
@@ -209,7 +192,6 @@ int restore_stdin()
 	if (redir_flag(GET_IN_FLAG))
 	{
 		close(STDIN_FILENO);
-//		ft_dprintf(2, "restore stdin fd %i\n", setup_redir(-1, GET_REDIR | STDIN_SAVE));
 		if (dup2(setup_redir(-1, GET_REDIR | STDIN_SAVE), STDIN_FILENO) < 0)
 		{
 			ft_dprintf(STDERR_FILENO, "dup2 restore stdin error\n");

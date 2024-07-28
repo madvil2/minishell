@@ -47,7 +47,7 @@ static int execute_builtin(char **argv)
 	return (EXIT_FAILURE);
 }
 
-int	execute_compound_command(t_tree *root, sem_t *sem_print)
+int	execute_compound_command(t_tree *root)
 {
 	t_deque_node	*travel;
 	int				i;
@@ -64,15 +64,10 @@ int	execute_compound_command(t_tree *root, sem_t *sem_print)
 	}
 	set_input();
 	set_output();
-//	sem_wait(sem_print);
-//	ft_dprintf(2, "setup redirection %i/%i: %s type: %i\n", i, root->nb_child, travel->next->as_tree->as_nt->token->str, travel->as_tree->child->head->as_tree->as_nt->token->type);
-//	ft_dprintf(2, "executing subshell\n");
-//	print_tree_fd(2, root->child->head->next->as_tree, 0);
-//	sem_post(sem_print);
 	pid = fork();
 	if (pid == 0)
 	{
-		status = execute_and_or_sequence(root->child->head->next->as_tree, sem_print);
+		status = execute_and_or_sequence(root->child->head->next->as_tree);
 		exit_cleanup();
 		exit(status);
 	}
@@ -80,7 +75,7 @@ int	execute_compound_command(t_tree *root, sem_t *sem_print)
 	return (status);
 }
 
-int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
+int	execute_simple_command_wrapper(t_tree *root)
 {
 	int				i;
 	t_deque_node	*travel;
@@ -89,7 +84,6 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 	char			**argv;
 	int				status;
 
-	(void)sem_print;
 	new_child = deque_init();
 	travel = root->child->head;
 	i = -1;
@@ -110,27 +104,12 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 			ft_dprintf(2, "ti eblan\n");
 			exit(0);
 		}
-//		sem_wait(sem_print);
-//		ft_dprintf(2, "adding %s\n", new_child->head->prev->as_token->str);
-//		sem_post(sem_print);
 		ft_replace_char(new_child->head->prev->as_token->str, ' ', SPACE_REPLACE);
 		travel = travel->next;
 	}
-//	print_tokens_fd(new_child, 2);
-	expand_env_vars(new_child);//dont do if heredoc
-//	ft_dprintf(2, "after expanding\n");
-//	print_tokens_fd(new_child, 2);
-	globbing(new_child);//dont do if heredoc
-//	ft_dprintf(2, "after globbing\n");
-//	print_tokens_fd(new_child, 2);
-//	merge_words(&new_child);//not needed
-//	ft_dprintf(2, "after merging\n");
-//	print_tokens_fd(new_child, 2);
+	expand_env_vars(new_child);
+	globbing(new_child);
 	split_words(&new_child);
-//	ft_dprintf(2, "after splitting\n");
-//	sem_wait(sem_print);
-//	print_tokens_fd(new_child, 2);
-//	sem_post(sem_print);
 	argv_deque = deque_init();
 	travel = new_child->head;
 	i = 0;
@@ -157,11 +136,6 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 	set_input();
 	set_output();
 	argv = (char **)deque_to_arr(argv_deque);
-//	sem_wait(sem_print);
-	//ft_dprintf(2, "executed\n"); //debug
-	//print_arr_fd(argv, 2); //debug
-//	sem_post(sem_print);
-//	return (0);
 	if (is_builtin(argv[0]))
 		status = execute_builtin(argv);
 	else
@@ -171,13 +145,15 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 	return (status);
 }
 
-int	execute_single_command(t_tree *root, sem_t *sem_print)
+int	execute_single_command(t_tree *root)
 {
 	pid_t			pid;
 	int				status;
 	t_deque_node	*travel;
 	int				i;
 
+	if (root->child->head->as_tree->child->head->as_tree->as_nt->type == NT_TERMINAL && root->child->head->as_tree->child->head->as_tree->as_nt->token->type == TOK_L_PAREN)
+		return (execute_compound_command(root->child->head->as_tree));
 	if (root->child->head->as_tree->as_nt->type == NT_SIMPLE_COMMAND)
 	{
 		travel = root->child->head->as_tree->child->head;
@@ -188,7 +164,7 @@ int	execute_single_command(t_tree *root, sem_t *sem_print)
 				&& travel->as_tree->as_nt->token->type == TOK_WORD && (i == 0 || travel->prev->as_tree->as_nt->token->type == TOK_WORD)
 				&& is_builtin(travel->as_tree->as_nt->token->str))
 			{
-				status = execute_simple_command_wrapper(root->child->head->as_tree, sem_print);
+				status = execute_simple_command_wrapper(root->child->head->as_tree);
 				return (status);
 			}
 			travel = travel->next;
@@ -200,19 +176,18 @@ int	execute_single_command(t_tree *root, sem_t *sem_print)
 	pid = fork();
 	if (pid == 0)
 	{
-		status = execute_simple_command_wrapper(root->child->head->as_tree, sem_print);
+		status = execute_simple_command_wrapper(root->child->head->as_tree);
 		exit_cleanup();
 		exit(status);
 	}
 	while (wait(&status) > 0)
 	{
 	}
-//	ft_dprintf(2, "status is %i\n", status);
 	interactive_signals_hook();
 	return (status);
 }
 
-int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
+int	execute_pipe_sequence(t_tree *root)
 {
 	int				i;
 	t_deque_node	*travel;
@@ -225,7 +200,7 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 	redir_flag(RESET_IN_FLAG);
 	redir_flag(RESET_OUT_FLAG);
 	if (root->nb_child == 1)
-		return (execute_single_command(root, sem_print));
+		return (execute_single_command(root));
 	travel = root->child->head;
 	i = 0;
 	prev_in_fd = -1;
@@ -250,9 +225,9 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 				close(pipefd[PIPE_WRITE]);
 			}
 			if (travel->as_tree->child->head->as_tree->as_nt->type == NT_TERMINAL && travel->as_tree->child->head->as_tree->as_nt->token->type == TOK_L_PAREN)
-				status = execute_compound_command(travel->as_tree, sem_print);
+				status = execute_compound_command(travel->as_tree);
 			else
-				status = execute_simple_command_wrapper(travel->as_tree, sem_print);
+				status = execute_simple_command_wrapper(travel->as_tree);
 			exit_cleanup();
 			exit(status);
 		}
@@ -277,37 +252,33 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 	return (status);
 }
 
-int	execute_and_or_sequence(t_tree *root, sem_t *sem_print)
+int	execute_and_or_sequence(t_tree *root)
 {
 	int				i;
 	int				last_exit_status;
 	t_deque_node	*travel;
 
 	travel = root->child->head;
-	last_exit_status = execute_pipe_sequence(travel->as_tree, sem_print);
+	last_exit_status = execute_pipe_sequence(travel->as_tree);
 	i = 2;
 	while (i < root->nb_child)
 	{
 		travel = travel->next->next;
 		if ((!last_exit_status && travel->prev->as_tree->child->head->as_tree->as_nt->token->type == TOK_AND)
 			|| (last_exit_status && travel->prev->as_tree->child->head->as_tree->as_nt->token->type == TOK_OR))
-		{
-			//ft_dprintf(2, "i = %i\n", i); //debug
-			//print_tree(travel->as_tree, 0); //debug
-			last_exit_status = execute_pipe_sequence(travel->as_tree, sem_print);
-		}
+			last_exit_status = execute_pipe_sequence(travel->as_tree);
 		i += 2;
 	}
 	return (last_exit_status);
 }
 
-int	execute_complete_command(t_tree *root, sem_t *sem_print)
+int	execute_complete_command(t_tree *root)
 {
 	if (root->child->head->as_tree->as_nt->type == NT_TERMINAL && root->child->head->as_tree->as_nt->token->type == TOK_EPSILON)
 		return (EXIT_SUCCESS);
 	if (root->child->head->as_tree->as_nt->type == NT_AND_OR_SEQUENCE)
 	{
-		int status = execute_and_or_sequence(root->child->head->as_tree, sem_print);
+		int status = execute_and_or_sequence(root->child->head->as_tree);
 		return (status);
 	}
 	ft_dprintf(2, "ti eblan\n");

@@ -129,7 +129,6 @@ static t_deque *get_rule(t_nonterm_type nt, t_token_type token)
 
 	set_allocator(TEMP);
 	rules = rules_init();
-	//ft_printf("applying rule %d\n", parsing_table[nt][token]); //debug
 	if (parsing_table[nt][token] == -1)
 		return (NULL);
 	return (rules[parsing_table[nt][token]]);
@@ -147,16 +146,12 @@ static void	ptree_add_node(t_tree **root, t_deque *rule, char *str_token)//
 		queue = deque_init();
 		*root = tree_node_init(nt_init(NT_S, NULL));
 		deque_push_node_right(queue, deque_node_init(*root));
-		//print_queue(queue);// debug
-		//ft_printf("\n"); //debug
 		return ;
 	}
 	if (queue->head->as_tree->as_nt->type == NT_TERMINAL && str_token && !rule)
 	{
 		queue->head->as_tree->as_nt->token->str = ft_strdup(str_token);
 		deque_pop_right(queue);
-		//print_queue(queue);// debug
-		//ft_printf("\n"); //debug
 		return ;
 	}
 	i = 0;
@@ -175,8 +170,6 @@ static void	ptree_add_node(t_tree **root, t_deque *rule, char *str_token)//
 		deque_push_node_right(queue, deque_node_init((void *)deque_travel->as_tree));
 		deque_travel = deque_travel->prev;
 	}
-	//print_queue(queue); //debug
-	//ft_printf("\n"); //debug
 }
 
 t_tree	*pda_parse(t_deque *input)
@@ -191,8 +184,6 @@ t_tree	*pda_parse(t_deque *input)
 	stack = deque_init();
 	deque_push_node_left(input, deque_node_init(token_init(TOK_EOL, "$")));
 	deque_push_node_left(stack, deque_node_init(nt_init(NT_S, NULL)));
-	//print_stack(stack); //debug
-	//print_input(input); //debug
 	ptree_add_node(&root, NULL, NULL);
 	while (stack->size || input->size)
 	{
@@ -215,7 +206,7 @@ t_tree	*pda_parse(t_deque *input)
 				deque_pop_right(input);
 				deque_pop_right(stack);
 			}
-			else//syntax_error
+			else
 			{
 				ft_printf("minishell: syntax error near %s\n", input->head->as_token->str);
 				return (NULL);
@@ -226,7 +217,7 @@ t_tree	*pda_parse(t_deque *input)
 			rule = get_rule(stack->head->as_nt->type, input->head->as_token->type);
 			if (!rule)
 			{
-				ft_printf("minishell: syntax error near %s\n", input->head->as_token->str);
+				ft_dprintf(STDERR_FILENO, "minishell: syntax error near %s\n", input->head->as_token->str);
 				return (NULL);
 			}
 			if (rule->head->as_nt->type != stack->head->as_nt->type)
@@ -234,7 +225,7 @@ t_tree	*pda_parse(t_deque *input)
 				ft_printf("ti eblan\n");
 				exit(127);
 			}
-			i = 0;//should be 0 to skip first nonterminal
+			i = 0;
 			travel = rule->head->prev;
 			deque_pop_right(stack);
 			while (++i < rule->size)
@@ -244,8 +235,6 @@ t_tree	*pda_parse(t_deque *input)
 			}
 			ptree_add_node(&root, rule, NULL);
 		}
-		//print_stack(stack); //debug
-		//print_input(input); //debug
 	}
 	return (root);
 }

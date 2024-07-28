@@ -14,7 +14,6 @@
 
 static bool	is_word_char(const char c)
 {
-//	if (ft_isprint(c) && !ft_isspace(c) && !ft_strchr("><()'\"|&", c))//single ampersand inside a word?
 	if (ft_isprint(c) && !ft_strchr("><()'\"|&", c))
 		return (TRUE);
 	return (FALSE);
@@ -118,8 +117,6 @@ t_deque	*tokenize(const char *str)
 			else
 				tokenize_word(&str, tokens);
 		}
-//		while (ft_isspace(*str))
-//			str++;
 	}
 	travel = tokens->head;
 	i = -1;
@@ -136,20 +133,8 @@ t_deque	*tokenize(const char *str)
 		}
 		travel = travel->next;
 	}
-//	ft_printf("Before:\n");
-//	print_tokens(tokens);
-//	expand_env_vars(tokens);
-//	ft_printf("After expanding:\n");
-//	print_tokens(tokens);
-//	globbing(tokens);
-//	ft_printf("After globbing:\n");
-//	print_tokens(tokens);
 	merge_words(&tokens);
-//	ft_printf("After merge:\n");
-//	print_tokens(tokens);
 	split_words(&tokens);
-//	ft_printf("After splitting:\n"); //debug
-//	print_tokens(tokens); //debug
 	travel = tokens->head;
 	i = 0;
 	while (++i < tokens->size)
@@ -161,7 +146,5 @@ t_deque	*tokenize(const char *str)
 		}
 		travel = travel->next;
 	}
-//	ft_printf("After heredoc_change:\n");
-//	print_tokens(tokens);
 	return (tokens);
 }

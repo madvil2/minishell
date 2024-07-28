@@ -17,13 +17,13 @@ static int	get_key_len(const char *str)
 	int	i;
 	int	key_len;
 
-	if (str[0] != EXP_REPLACE)//"ABC"
+	if (str[0] != EXP_REPLACE)
 		return (1);
-	if (str[1] == 0)//"$"
+	if (str[1] == 0)
 		return (1);
-	if (!ft_isalpha(str[1]) && str[1] != '?')//$1
+	if (!ft_isalpha(str[1]) && str[1] != '?')
 		return (2);
-	if (str[1] == '?')//$?
+	if (str[1] == '?')
 		return (2);
 	i = 1;
 	key_len = 2;
@@ -76,12 +76,7 @@ void	expand_env_vars(t_deque *tokens)
 	{
 		if (travel->as_token->type == TOK_WORD
 			|| travel->as_token->type == TOK_DQUOTE_STR)
-		{
 			travel->as_token->str = expand_word(travel->as_token->str);
-//			travel->as_token->type = TOK_WORD;
-		}
-//		else if (travel->as_token->type == TOK_SQUOTE_STR)
-//			travel->as_token->type = TOK_WORD;
 		travel = travel->next;
 	}
 }

@@ -33,6 +33,11 @@ int	exit_status(int flag, int status)
 {
 	static int	exit_status;
 
+	if (flag == SET_STATUS_FORCE)
+	{
+		exit_status = status;
+		return (exit_status);
+	}
 	if (flag == SET_STATUS)
 	{
 		if (WIFEXITED(status))
@@ -40,10 +45,7 @@ int	exit_status(int flag, int status)
 		else if (WIFSIGNALED(status))
 			exit_status = 128 + WTERMSIG(status);
 		else
-		{
-			ft_dprintf(2, "undefined status %i\n", status);
-			exit(1);
-		}
+			exit_status = status;
 	}
 	return (exit_status);
 }
