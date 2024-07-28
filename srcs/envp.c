@@ -21,7 +21,7 @@ void	envp_print(void)
 t_ht	*get_envp(char **env)
 {
 	static t_ht	*ht_envp;
-	int		equal_pos;
+	int			equal_pos;
 
 	if (!ht_envp)
 	{
@@ -33,7 +33,8 @@ t_ht	*get_envp(char **env)
 			while ((*env)[++equal_pos])
 				if ((*env)[equal_pos] == '=')
 					break ;
-			ht_add(ht_envp, ft_strndup(*env, equal_pos), ft_strdup(*env + equal_pos + 1));
+			ht_add(ht_envp, ft_strndup(*env, equal_pos),
+				ft_strdup(*env + equal_pos + 1));
 			env++;
 		}
 	}

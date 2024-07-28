@@ -12,7 +12,7 @@
 
 #include "../../includes/minishell.h"
 
-void	exit_cleanup()
+void	exit_cleanup(void)
 {
 	gc_free(TEMP);
 	gc_free(PERM);

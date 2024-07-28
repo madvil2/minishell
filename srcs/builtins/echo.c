@@ -14,9 +14,9 @@
 
 int	builtin_echo(char **argv)
 {
-	int i;
-	int nl_flag;
-	int sep_flag;
+	int	i;
+	int	nl_flag;
+	int	sep_flag;
 
 	sep_flag = 0;
 	nl_flag = 1;

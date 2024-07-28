@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   exit_status.c                                      :+:      :+:    :+:   */
+/*   redirections.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nam-vu <nam-vu@student.42berlin.de>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -11,16 +11,6 @@
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-
-int	is_dir(char *path)
-{
-	struct stat	buf;
-
-	stat(path, &buf);
-	if (S_ISDIR(buf.st_mode))
-		return (TRUE);
-	return (FALSE);
-}
 
 int	redir_flag(int flag)
 {
@@ -125,92 +115,4 @@ int	change_redir(char *path, t_token_type type)
 	if (type == TOK_INPUT || type == TOK_HEREDOC)
 		return (change_input(path, type));
 	return (EXIT_FAILURE);
-}
-
-int	set_input()
-{
-	if (redir_flag(GET_IN_FLAG))
-	{
-		if (dup2(setup_redir(-1, GET_REDIR | CUR_IN), STDIN_FILENO) < 0)
-		{
-			ft_dprintf(STDERR_FILENO, "dup2 set input error fd: %i\n", setup_redir(-1, GET_REDIR | CUR_IN));
-			exit(EXIT_FAILURE);
-		}
-	}
-	return (EXIT_SUCCESS);
-}
-
-int	set_output()
-{
-	if (redir_flag(GET_OUT_FLAG))
-	{
-		if (dup2(setup_redir(-1, GET_REDIR | CUR_OUT), STDOUT_FILENO) < 0)
-		{
-			ft_dprintf(STDERR_FILENO, "dup2 set output error fd: %i\n", setup_redir(-1, GET_REDIR | CUR_OUT));
-			exit(EXIT_FAILURE);
-		}
-	}
-	return (EXIT_SUCCESS);
-}
-
-int	save_stdin()
-{
-	int temp;
-
-	if (redir_flag(GET_IN_FLAG))
-	{
-		temp = dup(STDIN_FILENO);
-		if (temp < 0)
-		{
-			ft_dprintf(STDERR_FILENO, "dup save stdin error\n");
-			exit(EXIT_FAILURE);
-		}
-		setup_redir(temp, SET_REDIR | STDIN_SAVE);
-	}
-	return (EXIT_SUCCESS);
-}
-
-int	save_stdout()
-{
-	int temp;
-
-	if (redir_flag(GET_OUT_FLAG))
-	{
-		temp = dup(STDOUT_FILENO);
-		if (temp < 0)
-		{
-			ft_dprintf(STDERR_FILENO, "dup save stdout error\n");
-			exit(EXIT_FAILURE);
-		}
-		setup_redir(temp, SET_REDIR | STDOUT_SAVE);
-	}
-	return (EXIT_SUCCESS);
-}
-
-int restore_stdin()
-{
-	if (redir_flag(GET_IN_FLAG))
-	{
-		close(STDIN_FILENO);
-		if (dup2(setup_redir(-1, GET_REDIR | STDIN_SAVE), STDIN_FILENO) < 0)
-		{
-			ft_dprintf(STDERR_FILENO, "dup2 restore stdin error\n");
-			exit(EXIT_FAILURE);
-		}
-	}
-	return (EXIT_SUCCESS);
-}
-
-int restore_stdout()
-{
-	if (redir_flag(GET_OUT_FLAG))
-	{
-		close(STDOUT_FILENO);
-		if (dup2(setup_redir(-1, GET_REDIR | STDOUT_SAVE), STDOUT_FILENO) < 0)
-		{
-			ft_dprintf(STDERR_FILENO, "dup2 restore stdout error\n");
-			exit(EXIT_FAILURE);
-		}
-	}
-	return (EXIT_SUCCESS);
 }

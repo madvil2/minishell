@@ -12,7 +12,7 @@
 
 #include "../../includes/minishell.h"
 
-static t_deque *get_sequence_childs(t_tree *root)
+static t_deque	*get_sequence_childs(t_tree *root)
 {
 	t_tree			*travel;
 	t_deque_node	*travel_child;
@@ -37,16 +37,14 @@ static t_deque *get_sequence_childs(t_tree *root)
 	return (res);
 }
 
-t_tree	*ptree_flattening(t_tree *root)
+static void	ptree_flattening_helper(t_tree *root)
 {
 	t_deque			*sequence_childs;
-	t_deque_node	*travel;
-	int	i;
 
-	if (root->as_nt->type == NT_TERMINAL)
-		return (NULL);
 	sequence_childs = NULL;
-	if ((root->as_nt->type == NT_AND_OR_SEQUENCE || root->as_nt->type == NT_PIPE_SEQUENCE || root->as_nt->type == NT_SIMPLE_COMMAND)
+	if ((root->as_nt->type == NT_AND_OR_SEQUENCE
+			|| root->as_nt->type == NT_PIPE_SEQUENCE
+			|| root->as_nt->type == NT_SIMPLE_COMMAND)
 		&& root->nb_child)
 		sequence_childs = get_sequence_childs(root);
 	if (sequence_childs)
@@ -58,6 +56,16 @@ t_tree	*ptree_flattening(t_tree *root)
 			deque_pop_right(sequence_childs);
 		}
 	}
+}
+
+t_tree	*ptree_flattening(t_tree *root)
+{
+	t_deque_node	*travel;
+	int				i;
+
+	if (root->as_nt->type == NT_TERMINAL)
+		return (NULL);
+	ptree_flattening_helper(root);
 	i = -1;
 	travel = root->child->head;
 	while (++i < root->nb_child)

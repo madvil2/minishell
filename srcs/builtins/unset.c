@@ -28,7 +28,8 @@ int	builtin_unset(char **argv)
 			|| !ft_strncmp(argv[i], "SHELLOPTS", ft_strlen(argv[i]) + 1)
 			|| !ft_strncmp(argv[i], "UID", ft_strlen(argv[i]) + 1))
 		{
-			ft_dprintf(STDERR_FILENO, "unset: %s: cannot unset: readonly variable", argv[i]);
+			ft_dprintf(STDERR_FILENO,
+				"unset: %s: cannot unset: readonly variable", argv[i]);
 			exit_status = 1;
 		}
 		envp_delete(argv[i]);

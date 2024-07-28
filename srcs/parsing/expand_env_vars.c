@@ -32,29 +32,37 @@ static int	get_key_len(const char *str)
 	return (key_len);
 }
 
+static void	expand_word_helper(const char *str,
+	t_deque **res, char **res_str, int *res_len)
+{
+	int		i;
+	char	*value;
+	int		key_len;
+
+	set_allocator(TEMP);
+	*res = deque_init();
+	i = 0;
+	*res_len = 0;
+	while (str[i])
+	{
+		key_len = get_key_len(str + i);
+		value = envp_find(ft_strndup(str + i, key_len));
+		*res_len += ft_strlen(value);
+		deque_push_node_left(*res, deque_node_init(value));
+		i += key_len;
+	}
+	*res_str = ft_calloc(*res_len + 1, sizeof(char));
+}
+
 static char	*expand_word(const char *str)
 {
 	int				i;
-	char		*value;
-	int				key_len;
 	t_deque			*res;
 	t_deque_node	*travel;
 	int				res_len;
 	char			*res_str;
 
-	set_allocator(TEMP);
-	res = deque_init();
-	i = 0;
-	res_len = 0;
-	while (str[i])
-	{
-		key_len = get_key_len(str + i);
-		value = envp_find(ft_strndup(str + i, key_len));
-		res_len += ft_strlen(value);
-		deque_push_node_left(res, deque_node_init(value));
-		i += key_len;
-	}
-	res_str = ft_calloc(res_len + 1, sizeof(char));
+	expand_word_helper(str, &res, &res_str, &res_len);
 	i = -1;
 	travel = res->head;
 	while (++i < res->size)

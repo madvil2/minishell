@@ -19,15 +19,23 @@ SUB_PATH :=			.\
 
 FILES :=			minishell\
 					signals\
+					signals2\
 					envp\
 					tokenize\
+					tokenize2\
 					expand_env_vars\
 					globbing\
+					globbing2\
 					form_words\
 					pda_parse\
+					pda_parse2\
+					pda_parse3\
 					utils\
 					flattening\
 					execute_ptree\
+					execute_pipe_sequence\
+					execute_single_command\
+					execute_simple_command_wrapper\
 					execute_simple_command\
 					heredoc\
 					echo\
@@ -38,6 +46,8 @@ FILES :=			minishell\
 					pwd\
 					exit_status\
 					redirections\
+					redirections2\
+					redirections3\
 
 LIB :=				$(LIB_PATH)libft.a
 

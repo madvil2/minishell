@@ -14,7 +14,7 @@
 
 static int	check_key(char *key)
 {
-	int i;
+	int	i;
 
 	if (!ft_isalpha(key[0]) && key[0] != '_')
 		return (EXIT_FAILURE);
@@ -25,15 +25,25 @@ static int	check_key(char *key)
 			return (EXIT_FAILURE);
 		i++;
 	}
-	return(EXIT_SUCCESS);
+	return (EXIT_SUCCESS);
 }
 
-int	builtin_export(char **argv)// todo: export with no arguments
+static void	modify_env(char *str, int eq_pos, char *key)
+{
+	char	*value;
+
+	if (!ft_strchr(str, '='))
+		value = ft_strdup("");
+	else
+		value = ft_strdup(str + eq_pos + 1);
+	envp_add(key, value);
+}
+
+int	builtin_export(char **argv)
 {
 	int		i;
 	int		eq_pos;
 	char	*key;
-	char	*value;
 	int		exit_status;
 
 	i = 1;
@@ -46,17 +56,12 @@ int	builtin_export(char **argv)// todo: export with no arguments
 		key = ft_strndup(argv[i], eq_pos);
 		if (check_key(key))
 		{
-			ft_dprintf(STDERR_FILENO, "export: '%s': not a valid identifier\n", key);
+			ft_dprintf(STDERR_FILENO,
+				"export: '%s':not a valid identifier\n", key);
 			exit_status = 1;
 		}
 		else
-		{
-			if (!ft_strchr(argv[i], '='))
-				value = ft_strdup("");
-			else
-				value = ft_strdup(argv[i] + eq_pos + 1);
-			envp_add(key, value);
-		}
+			modify_env(argv[i], eq_pos, key);
 		i++;
 	}
 	return (exit_status);

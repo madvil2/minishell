@@ -47,11 +47,11 @@
 # include <dirent.h>
 # include <fcntl.h>
 # include <semaphore.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <termios.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+# include <sys/stat.h>
+# include <sys/ioctl.h>
+# include <termios.h>
 
 # define TRUE 1
 # define FALSE 0
@@ -89,6 +89,7 @@ typedef struct s_ptree_node	t_ptree_node;
 typedef enum e_nonterm_type	t_nonterm_type;
 typedef struct s_nonterm	t_nonterm;
 typedef struct sigaction	t_sa;
+typedef struct s_pipe_seq	t_pipe_seq;
 
 enum e_token_type
 {
@@ -137,6 +138,15 @@ struct s_nonterm
 	t_token			*token;
 };
 
+struct s_pipe_seq
+{
+	int		status;
+	int		prev_in_fd;
+	int		pipefd[2];
+	pid_t	pid;
+	pid_t	last_pid;
+};
+
 # define STR_TOK_OVERWRITE  "<TOK_OVERWRITE>"
 # define STR_TOK_INPUT      "<TOK_INPUT>"
 # define STR_TOK_APPEND     "<TOK_APPEND>"
@@ -167,97 +177,116 @@ struct s_nonterm
 # define STR_NT_IO_REDIRECT "NT_IO_REDIRECT"
 # define STR_NT_TERMINAL "NT_TERMINAL"
 
-//tokenize.c
-t_deque	*tokenize(const char *str);
+//expand_env_vars
+void		expand_env_vars(t_deque *tokens);
 
-//expand_env_vars.c
-void	expand_env_vars(t_deque *tokens);
+//envp
+void		envp_print(void);
+t_ht		*get_envp(char **env);
+void		envp_add(const char *key, const char *value);
+void		envp_delete(const char *key);
+char		*envp_find(const char *key);
 
-//envp.c
-void	envp_print(void);
-t_ht	*get_envp(char **env);
-void	envp_add(const char *key, const char *value);
-void	envp_delete(const char *key);
-char	*envp_find(const char *key);
+//tokenize
+//1
+t_deque		*tokenize(const char *str);
+//2
+bool		tokenize_static(const char **str, t_deque *tokens);
+bool		tokenize_quote(const char **str, t_deque *tokens);
+bool		tokenize_word(const char **str, t_deque *tokens);
 
+//expand_env_vars
+void		expand_env_vars(t_deque *tokens);
 
-//tokenize.c
-t_deque	*tokenize(const char *str);
+// globing
+void		globbing(t_deque *tokens);
+//2
+int			ft_filenamecmp(const char *s1, const char *s2);
+char		*ft_arr_to_str(int size, char **strs, char *sep);
+int			check_pattern(const char *str, const char *pattern);
 
-//expand_env_vars.c
-void	expand_env_vars(t_deque *tokens);
+//form_words
+char		*ft_replace_char(char *str, char find, char replace);
+void		merge_words(t_deque **tokens);
+void		split_words(t_deque **tokens);
 
-// globing.c
-void	globbing(t_deque *tokens);
-
-//form_words.c
-char	*ft_replace_char(char *str, char find, char replace);
-void	merge_words(t_deque **tokens);
-void	split_words(t_deque **tokens);
-
-//pda_parse.c
-t_tree	*pda_parse(t_deque *input);
+//pda_parse
+//1
+t_tree		*pda_parse(t_deque *input);
 t_token		*token_init(t_token_type type, char *str);
 t_nonterm	*nt_init(t_nonterm_type type, t_token *token);
+//2
+t_token		*token_init(t_token_type type, char *str);
+t_nonterm	*nt_init(t_nonterm_type type, t_token *token);
+t_nonterm	*nt_recognizer(char *str);
+t_deque		**rules_init(void);
+//3
+t_deque		*get_rule(t_nonterm_type nt, t_token_type token);
+void		ptree_add_node(t_tree **root, t_deque *rule, char *str_token);
 
-//flattening.c
-t_tree	*ptree_flattening(t_tree *root);
-t_tree	*ptree_cleanup(t_tree *root);
+//flattening
+t_tree		*ptree_flattening(t_tree *root);
 
-//utils.c
-void	print_tree(t_tree *root, int depth);
-void	print_tree_fd(int fd, t_tree *root, int depth);
-void	print_queue(t_deque	*queue);
-void	print_tokens(t_deque *tokens);
-void	print_input(t_deque *tokens);
-void	print_stack(t_deque *stack);
-char	*nt_to_str(t_nonterm_type type);
-void	print_rules(t_deque **rules);
-void	print_tokens_fd(t_deque *tokens, int fd);
-void	print_arr_fd(char **arr, int fd);
+//utils
+void		print_tree(t_tree *root, int depth);
+void		print_tree_fd(int fd, t_tree *root, int depth);
+void		print_queue(t_deque	*queue);
+void		print_tokens(t_deque *tokens);
+void		print_input(t_deque *tokens);
+void		print_stack(t_deque *stack);
+char		*nt_to_str(t_nonterm_type type);
+void		print_rules(t_deque **rules);
+void		print_tokens_fd(t_deque *tokens, int fd);
+void		print_arr_fd(char **arr, int fd);
 
-//execute_ptree.c
-int	execute_simple_command_wrapper(t_tree *root);
-int	execute_single_command(t_tree *root);
-int	execute_pipe_sequence(t_tree *root);
-int	execute_and_or_sequence(t_tree *root);
-int	execute_complete_command(t_tree *root);
+//execute_ptree
+int			is_builtin(char *str);
+int			execute_builtin(char **argv);
+int			execute_compound_command(t_tree *root);
+int			execute_and_or_sequence(t_tree *root);
+int			execute_complete_command(t_tree *root);
+int			execute_single_command(t_tree *root);
+int			execute_simple_command_wrapper(t_tree *root);
+int			execute_pipe_sequence(t_tree *root);
+int			execute_simple_command(char *program, char **argv);
 
-//execute_simple_command.c
-int		execute_simple_command(char *program, char **argv);
-
-//heredoc.c
-char	*create_heredoc(char *delimiter);
+//heredoc
+char		*create_heredoc(char *delimiter);
 
 //builtins
-int	builtin_echo(char **argv);
-int	builtin_export(char **argv);
-int	builtin_unset(char **argv);
-int	builtin_env(char **argv);
-int	builtin_exit(char **argv);
-int	builtin_pwd(char **argv);
+int			builtin_echo(char **argv);
+int			builtin_export(char **argv);
+int			builtin_unset(char **argv);
+int			builtin_env(char **argv);
+int			builtin_exit(char **argv);
+int			builtin_pwd(char **argv);
 
-//signals.c
-void	interactive_signals_hook();
-void	child_signals_hook();
-void	noninteractive_signals_hook();
+//signals
+//1
+void		interactive_signals_hook(void);
+void		child_signals_hook(void);
+//2
+void		noninteractive_signals_hook(void);
 
-//exit_status.c
-int		exit_status(int flag, int value);
-void	exit_cleanup();
+//exit_status
+int			exit_status(int flag, int value);
+void		exit_cleanup(void);
 
-//redirections.c
-int	is_dir(char *path);
-int	redir_flag(int flag);
-int	setup_redir(int fd, int flag);
-int	change_input(char *path, t_token_type type);
-int	change_output(char *path, t_token_type type);
-int	change_redir(char *path, t_token_type type);
-int	set_input();
-int	set_output();
-int	save_stdin();
-int	save_stdout();
-int	restore_stdin();
-int	restore_stdout();
+//redirections
+//1
+int			redir_flag(int flag);
+int			setup_redir(int fd, int flag);
+int			change_input(char *path, t_token_type type);
+int			change_output(char *path, t_token_type type);
+int			change_redir(char *path, t_token_type type);
+//2
+int			save_stdin(void);
+int			save_stdout(void);
+int			restore_stdin(void);
+int			restore_stdout(void);
+//3
+int			is_dir(char *path);
+int			set_input(void);
+int			set_output(void);
 
 #endif

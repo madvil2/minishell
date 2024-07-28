@@ -38,7 +38,8 @@ static char	*search_executable(char *program, char **path_parts)
 char	**ht_to_envp(t_ht *ht)
 {
 	char	**envp_array;
-	int		i, j;
+	int		i;
+	int		j;
 
 	envp_array = ft_calloc(ht->nb_entry + 1, sizeof(char *));
 	if (!envp_array)
@@ -77,25 +78,16 @@ int	execute_simple_command(char *program, char **argv)
 	path_parts = ft_split(envp_find(ft_strjoin(exp_prefix, "PATH")), ':');
 	executable_path = search_executable(program, path_parts);
 	if (!executable_path)
-	{
-		ft_dprintf(STDERR_FILENO, "%s: command not found\n", program);
-		return (127);
-	}
+		return (ft_dprintf(STDERR_FILENO,
+				"%s: command not found\n", program), 127);
 	if (is_dir(executable_path))
-	{
-		ft_dprintf(STDERR_FILENO, "%s: Is a directory\n", program);
-		return (126);
-	}
+		return (ft_dprintf(STDERR_FILENO,
+				"%s: Is a directory\n", program), 126);
 	if (access(executable_path, X_OK) != 0)
-	{
-		ft_dprintf(STDERR_FILENO, "%s: Permission denied\n", program);
-		return (126);
-	}
-	set_allocator(PERM);
+		return (ft_dprintf(STDERR_FILENO,
+				"%s: Permission denied\n", program), 126);
 	envp = ht_to_envp(get_envp(NULL));
-	set_allocator(TEMP);
 	execve(executable_path, argv, envp);
-	perror("execve");
-	exit(EXIT_FAILURE);
+	(perror("execve"), exit(EXIT_FAILURE));
 	return (0);
 }

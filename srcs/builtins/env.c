@@ -15,7 +15,7 @@
 int	builtin_env(char **argv)
 {
 	t_ht	*env_list;
-	int	i;
+	int		i;
 
 	if (argv[1] != NULL)
 	{

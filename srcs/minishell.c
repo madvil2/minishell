@@ -12,13 +12,9 @@
 
 #include "../includes/minishell.h"
 
-int	main(int argc, char **argv, char **envp)
+static void	minishell_init(int argc, char **argv, char **envp,
+	char **rl_line_buf)
 {
-	t_deque	*tokens;
-	t_tree	*ptree;
-	char	*rl_line_buf;
-	char	**lines;
-
 	interactive_signals_hook();
 	rl_clear_history();
 	rl_on_new_line();
@@ -28,32 +24,46 @@ int	main(int argc, char **argv, char **envp)
 	get_envp(envp);
 	set_allocator(TEMP);
 	rl_line_buf = NULL;
+}
+
+static void	minishell_init2(char **rl_line_buf, char ***lines)
+{
+	envp_add("HEREDOC_ABORTED", "FALSE");
+	*rl_line_buf = readline("type shit: ");
+	if (!(*rl_line_buf))
+	{
+		exit_cleanup();
+		ft_dprintf(STDOUT_FILENO, "exit\n");
+		exit(exit_status(GET_STATUS, -1));
+	}
+	if (ft_strlen(*rl_line_buf))
+		add_history(*rl_line_buf);
+	dumpster_push(*get_dumpster(TEMP), *rl_line_buf);
+	set_allocator(PERM);
+	*lines = ft_split(*rl_line_buf, '\n');
+	set_allocator(TEMP);
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	t_deque	*tokens;
+	t_tree	*ptree;
+	char	*rl_line_buf;
+	char	**lines;
+
+	minishell_init(argc, argv, envp, &rl_line_buf);
 	while (1)
 	{
-		envp_add("HEREDOC_ABORTED", "FALSE");
-		rl_line_buf = readline("type shit: ");
-		if (!rl_line_buf)
-		{
-			exit_cleanup();
-			ft_dprintf(STDOUT_FILENO, "exit\n");
-			exit(exit_status(GET_STATUS, -1));
-		}
-		if (ft_strlen(rl_line_buf))
-			add_history(rl_line_buf);
-		dumpster_push(*get_dumpster(TEMP), rl_line_buf);
-		set_allocator(PERM);
-		lines = ft_split(rl_line_buf, '\n');
-		set_allocator(TEMP);
+		minishell_init2(&rl_line_buf, &lines);
 		while (*lines)
 		{
 			tokens = tokenize(*lines);
-			if (tokens)
-				argc = 0;
 			ptree = pda_parse(tokens);
 			if (ptree)
 			{
 				ptree = ptree_flattening(ptree);
-				exit_status(SET_STATUS, execute_complete_command(ptree->child->head->as_tree));
+				exit_status(SET_STATUS,
+					execute_complete_command(ptree->child->head->as_tree));
 			}
 			else
 				exit_status(SET_STATUS_FORCE, 2);
@@ -61,7 +71,4 @@ int	main(int argc, char **argv, char **envp)
 			lines++;
 		}
 	}
-	gc_free(PERM);
-	rl_clear_history();
-	return (exit_status(GET_STATUS, -1));
 }

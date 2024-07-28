@@ -12,10 +12,31 @@
 
 #include "../../includes/minishell.h"
 
-char	*read_from_heredoc(char *phrase, long long int index)
+static void	read_line_heredoc(char *phrase, int fd)
+{
+	char	*line;
+
+	while (TRUE)
+	{
+		line = readline("< ");
+		if (!line || !ft_strncmp(line, phrase, ft_strlen(phrase) + 1))
+		{
+			if (!line)
+				ft_dprintf(STDERR_FILENO, "warning: here-document\
+					delimited by end-of-file (wanted `%s')\n", phrase);
+			else
+				dumpster_push(*get_dumpster(TEMP), line);
+			return ;
+		}
+		ft_putstr_fd(line, fd);
+		ft_putchar_fd('\n', fd);
+		dumpster_push(*get_dumpster(TEMP), line);
+	}
+}
+
+static char	*read_from_heredoc(char *phrase, long long int index)
 {
 	char					*filename;
-	char					*line;
 	int						fd;
 	char					exp_prefix[2];
 
@@ -29,30 +50,28 @@ char	*read_from_heredoc(char *phrase, long long int index)
 		exit_cleanup();
 		exit (EXIT_FAILURE);
 	}
-	while (TRUE)
-	{
-		line = readline("< ");
-		if (!line || !ft_strncmp(line, phrase, ft_strlen(phrase) + 1))
-		{
-			if (!line)
-				ft_dprintf(STDERR_FILENO, "warning: here-document delimited by end-of-file (wanted `%s')\n", phrase);
-			else
-				dumpster_push(*get_dumpster(TEMP), line);
-			break ;
-		}
-		ft_putstr_fd(line, fd);
-		ft_putchar_fd('\n', fd);
-		dumpster_push(*get_dumpster(TEMP), line);
-	}
+	read_line_heredoc(phrase, fd);
 	close(fd);
 	return (filename);
 }
 
-char *create_heredoc(char *phrase)
+static void	heredoc_child(char *phrase, int *pipefd, int index)
+{
+	char	*filename;
+
+	close(pipefd[0]);
+	child_signals_hook();
+	filename = read_from_heredoc(phrase, index);
+	ft_dprintf(pipefd[1], "%s", filename);
+	close(pipefd[1]);
+	exit_cleanup();
+	exit(EXIT_SUCCESS);
+}
+
+char	*create_heredoc(char *phrase)
 {
 	pid_t					pid;
 	int						pipefd[2];
-	char					*filename;
 	char					buf[1024];
 	int						status;
 	static long long int	index;
@@ -63,15 +82,7 @@ char *create_heredoc(char *phrase)
 	pid = fork();
 	noninteractive_signals_hook();
 	if (pid == 0)
-	{
-		close(pipefd[0]);
-		child_signals_hook();
-		filename = read_from_heredoc(phrase, index);
-		ft_dprintf(pipefd[1], "%s", filename);
-		close(pipefd[1]);
-		exit_cleanup();
-		exit(EXIT_SUCCESS);
-	}
+		heredoc_child(phrase, pipefd, index);
 	close(pipefd[1]);
 	waitpid(pid, &status, 0);
 	exit_status(SET_STATUS, status);

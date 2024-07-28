@@ -25,45 +25,80 @@ char	*ft_replace_char(char *str, char find, char replace)
 	return (res);
 }
 
+static void	split_words_helper(t_deque_node **travel, t_deque **new_tokens)
+{
+	t_token	*new_token;
+	char	**new_words;
+
+	if ((*travel)->as_token->type != TOK_WORD)
+	{
+		new_token = ft_calloc(1, sizeof(t_token));
+		new_token->type = (*travel)->as_token->type;
+		new_token->str = ft_strdup((*travel)->as_token->str);
+		deque_push_node_left(*new_tokens, deque_node_init(new_token));
+	}
+	else
+	{
+		new_words = ft_split((*travel)->as_token->str, ' ');
+		while (*new_words)
+		{
+			new_token = ft_calloc(1, sizeof(t_token));
+			new_token->type = TOK_WORD;
+			new_token->str = ft_strdup(*new_words);
+			if (new_token->str[0])
+				deque_push_node_left(*new_tokens,
+					deque_node_init(new_token));
+			new_words++;
+		}
+	}
+}
+
 void	split_words(t_deque **tokens)
 {
 	int				i;
 	t_deque_node	*travel;
 	t_deque			*new_tokens;
-	t_token			*new_token;
-	char			**new_words;
 
 	new_tokens = deque_init();
 	i = 0;
 	travel = (*tokens)->head;
 	while (i < (*tokens)->size)
 	{
-		if (travel->as_token->type != TOK_WORD)
-		{
-			new_token = ft_calloc(1, sizeof(t_token));
-			new_token->type = travel->as_token->type;
-			new_token->str = ft_strdup(travel->as_token->str);
-			deque_push_node_left(new_tokens, deque_node_init(new_token));
-			travel = travel->next;
-			i++;
-		}
-		else
-		{
-			new_words = ft_split(travel->as_token->str, ' ');
-			while (*new_words)
-			{
-				new_token = ft_calloc(1, sizeof(t_token));
-				new_token->type = TOK_WORD;
-				new_token->str = ft_strdup(*new_words);
-				if (new_token->str[0])
-					deque_push_node_left(new_tokens, deque_node_init(new_token));
-				new_words++;
-			}
-			i++;
-			travel = travel->next;
-		}
+		split_words_helper(&travel, &new_tokens);
+		i++;
+		travel = travel->next;
 	}
 	*tokens = new_tokens;
+}
+
+static void	merge_words_helper(t_deque **tokens,
+	t_deque_node **travel, t_deque **new_tokens, int *i)
+{
+	t_token	*new_token;
+	char	*new_str;
+
+	new_token = ft_calloc(1, sizeof(t_token));
+	if ((*travel)->as_token->type != TOK_WORD)
+	{
+		new_token->type = (*travel)->as_token->type;
+		new_token->str = ft_strdup((*travel)->as_token->str);
+		deque_push_node_left(*new_tokens, deque_node_init(new_token));
+		*travel = (*travel)->next;
+		(*i)++;
+	}
+	else
+	{
+		new_token->type = TOK_WORD;
+		new_str = ft_strdup("");
+		while (*i < (*tokens)->size && (*travel)->as_token->type == TOK_WORD)
+		{
+			new_str = ft_strjoin(new_str, (*travel)->as_token->str);
+			*travel = (*travel)->next;
+			(*i)++;
+		}
+		new_token->str = new_str;
+		deque_push_node_left(*new_tokens, deque_node_init(new_token));
+	}
 }
 
 void	merge_words(t_deque **tokens)
@@ -71,37 +106,11 @@ void	merge_words(t_deque **tokens)
 	int				i;
 	t_deque_node	*travel;
 	t_deque			*new_tokens;
-	t_token			*new_token;
-	char			*new_str;
 
 	new_tokens = deque_init();
 	i = 0;
 	travel = (*tokens)->head;
 	while (i < (*tokens)->size)
-	{
-		if (travel->as_token->type != TOK_WORD)
-		{
-			new_token = ft_calloc(1, sizeof(t_token));
-			new_token->type = travel->as_token->type;
-			new_token->str = ft_strdup(travel->as_token->str);
-			deque_push_node_left(new_tokens, deque_node_init(new_token));
-			travel = travel->next;
-			i++;
-		}
-		else
-		{
-			new_token = ft_calloc(1, sizeof(t_token));
-			new_token->type = TOK_WORD;
-			new_str = ft_strdup("");
-			while (i < (*tokens)->size && travel->as_token->type == TOK_WORD)
-			{
-				new_str = ft_strjoin(new_str, travel->as_token->str);
-				travel = travel->next;
-				i++;
-			}
-			new_token->str = new_str;
-			deque_push_node_left(new_tokens, deque_node_init(new_token));
-		}
-	}
+		merge_words_helper(tokens, &travel, &new_tokens, &i);
 	*tokens = new_tokens;
 }
