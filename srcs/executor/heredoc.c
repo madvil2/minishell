@@ -59,7 +59,7 @@ char *create_heredoc(char *phrase)
 	int						status;
 	static long long int	index;
 
-	status = HEREDOC_ABORTED_STATUS;
+	status = SIGINT;
 	ft_bzero(buf, 1024);
 	pipe(pipefd);
 	pid = fork();
@@ -78,9 +78,10 @@ char *create_heredoc(char *phrase)
 	}
 	close(pipefd[1]);
 	waitpid(pid, &status, 0);
+	exit_status(SET_STATUS, status);
 	index++;
 	interactive_signals_hook();
-	if (status == HEREDOC_ABORTED_STATUS)
+	if (status == SIGINT)
 		envp_add("HEREDOC_ABORTED", "TRUE");
 	else
 		read(pipefd[0], buf, 1024);

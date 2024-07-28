@@ -196,7 +196,7 @@ int	execute_single_command(t_tree *root, sem_t *sem_print)
 		}
 	}
 	noninteractive_signals_hook();
-	status = 0;
+	status = SIGINT;
 	pid = fork();
 	if (pid == 0)
 	{
@@ -207,6 +207,7 @@ int	execute_single_command(t_tree *root, sem_t *sem_print)
 	while (wait(&status) > 0)
 	{
 	}
+//	ft_dprintf(2, "status is %i\n", status);
 	interactive_signals_hook();
 	return (status);
 }
@@ -219,6 +220,7 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 	int				prev_in_fd;
 	int				pipefd[2];
 	pid_t			pid;
+	pid_t			last_pid;
 
 	redir_flag(RESET_IN_FLAG);
 	redir_flag(RESET_OUT_FLAG);
@@ -254,6 +256,8 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 			exit_cleanup();
 			exit(status);
 		}
+		if (i == root->nb_child - 1)
+			last_pid = pid;
 		if (prev_in_fd != -1)
 			close(prev_in_fd);
 		if (i < root->nb_child - 1)
@@ -265,7 +269,8 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 		travel = travel->next->next;
 		i += 2;
 	}
-	while (wait(&status) > 0)
+	waitpid(last_pid, &status, 0);
+	while (wait(NULL) > 0)
 	{
 	}
 	interactive_signals_hook();

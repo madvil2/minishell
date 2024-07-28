@@ -76,8 +76,6 @@
 # define RESTORE_FD 2
 # define SAVE_FD 3
 
-# define HEREDOC_ABORTED_STATUS 15
-
 typedef enum e_token_type	t_token_type;
 typedef struct s_token		t_token;
 typedef struct s_ptree_node	t_ptree_node;

@@ -29,11 +29,21 @@ void	exit_cleanup()
 	}
 }
 
-int	exit_status(int flag, int value)
+int	exit_status(int flag, int status)
 {
 	static int	exit_status;
 
 	if (flag == SET_STATUS)
-		exit_status = value;
+	{
+		if (WIFEXITED(status))
+			exit_status = WEXITSTATUS(status);
+		else if (WIFSIGNALED(status))
+			exit_status = 128 + WTERMSIG(status);
+		else
+		{
+			ft_dprintf(2, "undefined status %i\n", status);
+			exit(1);
+		}
+	}
 	return (exit_status);
 }

@@ -65,7 +65,7 @@ int	main(int argc, char **argv, char **envp)
 				ptree = ptree_flattening(ptree);
 				//print_tree(ptree, 0); //debug
 				//ft_printf("\n"); //debug
-				exit_status(SET_STATUS, WEXITSTATUS(execute_complete_command(ptree->child->head->as_tree, NULL))); //sem_print for debugging
+				exit_status(SET_STATUS, execute_complete_command(ptree->child->head->as_tree, NULL)); //sem_print for debugging
 			}
 			gc_free(TEMP);
 			lines++;

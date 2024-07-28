@@ -93,6 +93,7 @@ int	change_input(char *path, t_token_type type)
 //			ft_dprintf(2, "close infile fd: %i\n", setup_redir(-1, GET_REDIR | CUR_IN));
 			close(setup_redir(-1, GET_REDIR | CUR_IN));
 		}
+//		ft_dprintf(2, "change in fd %i\n", temp);
 		setup_redir(temp, SET_REDIR | CUR_IN);
 	}
 	redir_flag(SET_IN_FLAG);
@@ -141,14 +142,15 @@ int	set_input()
 {
 	if (redir_flag(GET_IN_FLAG))
 	{
+//		ft_dprintf(2, "set input fd: %i\n", setup_redir(-1, GET_REDIR | CUR_IN));
 		if (dup2(setup_redir(-1, GET_REDIR | CUR_IN), STDIN_FILENO) < 0)
 		{
 			ft_dprintf(STDERR_FILENO, "dup2 set input error fd: %i\n", setup_redir(-1, GET_REDIR | CUR_IN));
 			exit(EXIT_FAILURE);
 		}
 	}
-	else
-		ft_dprintf(2, "no input redirections\n");
+//	else
+//		ft_dprintf(2, "no input redirections\n");
 	return (EXIT_SUCCESS);
 }
 
@@ -162,8 +164,8 @@ int	set_output()
 			exit(EXIT_FAILURE);
 		}
 	}
-	else
-		ft_dprintf(2, "no output redirections\n");
+//	else
+//		ft_dprintf(2, "no output redirections\n");
 	return (EXIT_SUCCESS);
 }
 
@@ -174,6 +176,7 @@ int	save_stdin()
 	if (redir_flag(GET_IN_FLAG))
 	{
 		temp = dup(STDIN_FILENO);
+//		ft_dprintf(2, "save stdin fd %i\n", temp);
 		if (temp < 0)
 		{
 			ft_dprintf(STDERR_FILENO, "dup save stdin error\n");
@@ -206,6 +209,7 @@ int restore_stdin()
 	if (redir_flag(GET_IN_FLAG))
 	{
 		close(STDIN_FILENO);
+//		ft_dprintf(2, "restore stdin fd %i\n", setup_redir(-1, GET_REDIR | STDIN_SAVE));
 		if (dup2(setup_redir(-1, GET_REDIR | STDIN_SAVE), STDIN_FILENO) < 0)
 		{
 			ft_dprintf(STDERR_FILENO, "dup2 restore stdin error\n");

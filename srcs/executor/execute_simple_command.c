@@ -71,10 +71,7 @@ int	execute_simple_command(char *program, char **argv)
 	char	exp_prefix[2];
 
 	if (!program)
-	{
-		exit_cleanup();
 		return (0);
-	}
 	child_signals_hook();
 	exp_prefix[0] = EXP_REPLACE;
 	exp_prefix[1] = 0;
