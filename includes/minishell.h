@@ -73,6 +73,8 @@
 
 # define CHANGE_REDIR 0
 # define SET_REDIR 1
+# define RESTORE_FD 2
+# define SAVE_FD 3
 
 # define HEREDOC_ABORTED_STATUS 15
 
@@ -218,7 +220,6 @@ int	execute_complete_command(t_tree *root, sem_t *print_sem);
 
 //execute_simple_command.c
 int		execute_simple_command(char *program, char **argv);
-int		setup_redirections(char *str, t_token_type type, int flag);
 
 //heredoc.c
 char	*create_heredoc(char *delimiter);
@@ -237,6 +238,33 @@ void	child_signals_hook();
 void	noninteractive_signals_hook();
 
 //exit_status.c
-int	exit_status(int flag, int value);
+int		exit_status(int flag, int value);
+void	exit_cleanup();
+# define SET_IN_FLAG 1
+# define SET_OUT_FLAG 2
+# define RESET_IN_FLAG 4
+# define RESET_OUT_FLAG 8
+# define GET_IN_FLAG 16
+# define GET_OUT_FLAG 32
+
+# define SET_REDIR 1
+# define GET_REDIR 2
+# define CUR_IN 4
+# define CUR_OUT 8
+# define STDIN_SAVE 16
+# define STDOUT_SAVE 32
+
+//redirections.c
+int	redir_flag(int flag);
+int	setup_redir(int fd, int flag);
+int	change_input(char *path, t_token_type type);
+int	change_output(char *path, t_token_type type);
+int	change_redir(char *path, t_token_type type);
+int	set_input();
+int	set_output();
+int	save_stdin();
+int	save_stdout();
+int	restore_stdin();
+int	restore_stdout();
 
 #endif

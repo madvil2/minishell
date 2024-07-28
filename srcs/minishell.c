@@ -40,10 +40,8 @@ int	main(int argc, char **argv, char **envp)
 		rl_line_buf = readline("type shit: ");
 		if (!rl_line_buf)
 		{
-			gc_free(TEMP);
-			gc_free(PERM);
+			exit_cleanup();
 			ft_dprintf(STDOUT_FILENO, "exit\n");
-			rl_clear_history();
 			exit(EXIT_SUCCESS);
 		}
 		add_history(rl_line_buf);

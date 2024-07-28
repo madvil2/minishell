@@ -18,7 +18,6 @@ SUB_PATH :=			.\
 					builtins\
 
 FILES :=			minishell\
-					exec_pipe\
 					signals\
 					envp\
 					tokenize\
@@ -38,6 +37,7 @@ FILES :=			minishell\
 					exit\
 					pwd\
 					exit_status\
+					redirections\
 
 LIB :=				$(LIB_PATH)libft.a
 

@@ -33,9 +33,7 @@ static void noninteractive_interrupt(int sig)
 static void interactive_interrupt_child(int sig)
 {
 	(void)sig;
-	gc_free(TEMP);
-	gc_free(PERM);
-	rl_clear_history();
+	exit_cleanup();
 	exit(sig);
 }
 

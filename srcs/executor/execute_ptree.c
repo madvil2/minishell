@@ -58,12 +58,12 @@ int	execute_compound_command(t_tree *root, sem_t *sem_print)
 	i = 3;//skip "(", <and_or_sequence> and ")"
 	while (i < root->nb_child)
 	{
-
-		setup_redirections(travel->next->as_tree->as_nt->token->str, travel->as_tree->child->head->as_tree->as_nt->token->type, CHANGE_REDIR);
+		change_redir(travel->next->as_tree->as_nt->token->str, travel->as_tree->child->head->as_tree->as_nt->token->type);
 		travel = travel->next->next;
 		i += 2;
 	}
-	setup_redirections(NULL, 0, SET_REDIR);
+	set_input();
+	set_output();
 //	sem_wait(sem_print);
 //	ft_dprintf(2, "setup redirection %i/%i: %s type: %i\n", i, root->nb_child, travel->next->as_tree->as_nt->token->str, travel->as_tree->child->head->as_tree->as_nt->token->type);
 //	ft_dprintf(2, "executing subshell\n");
@@ -73,9 +73,7 @@ int	execute_compound_command(t_tree *root, sem_t *sem_print)
 	if (pid == 0)
 	{
 		status = execute_and_or_sequence(root->child->head->next->as_tree, sem_print);
-		gc_free(TEMP);
-		gc_free(PERM);
-		rl_clear_history();
+		exit_cleanup();
 		exit(status);
 	}
 	wait(&status);
@@ -89,6 +87,7 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 	t_deque			*new_child;
 	t_deque			*argv_deque;
 	char			**argv;
+	int				status;
 
 	(void)sem_print;
 	new_child = deque_init();
@@ -140,7 +139,7 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 		if (travel->as_token->type == TOK_INPUT || travel->as_token->type == TOK_OVERWRITE || travel->as_token->type == TOK_APPEND || travel->as_token->type == TOK_HEREDOC)
 		{
 			travel->next->as_token->str = ft_replace_char(travel->next->as_token->str, SPACE_REPLACE, ' ');
-			if (!(setup_redirections(travel->next->as_token->str, travel->as_token->type, CHANGE_REDIR)))
+			if (change_redir(travel->next->as_token->str, travel->as_token->type))
 				return (1);
 			travel = travel->next;
 			i++;
@@ -153,7 +152,10 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 		travel = travel->next;
 		i++;
 	}
-	setup_redirections(NULL, 0, SET_REDIR);
+	save_stdin();
+	save_stdout();
+	set_input();
+	set_output();
 	argv = (char **)deque_to_arr(argv_deque);
 //	sem_wait(sem_print);
 	//ft_dprintf(2, "executed\n"); //debug
@@ -161,8 +163,12 @@ int	execute_simple_command_wrapper(t_tree *root, sem_t *sem_print)
 //	sem_post(sem_print);
 //	return (0);
 	if (is_builtin(argv[0]))
-		return (execute_builtin(argv));
-	return (execute_simple_command(argv[0], argv));
+		status = execute_builtin(argv);
+	else
+		status = execute_simple_command(argv[0], argv);
+	restore_stdin();
+	restore_stdout();
+	return (status);
 }
 
 int	execute_single_command(t_tree *root, sem_t *sem_print)
@@ -181,7 +187,10 @@ int	execute_single_command(t_tree *root, sem_t *sem_print)
 			if (travel->as_tree->as_nt->type == NT_TERMINAL && travel->prev->as_tree->as_nt->type == NT_TERMINAL
 				&& travel->as_tree->as_nt->token->type == TOK_WORD && (i == 0 || travel->prev->as_tree->as_nt->token->type == TOK_WORD)
 				&& is_builtin(travel->as_tree->as_nt->token->str))
-				return (execute_simple_command_wrapper(root->child->head->as_tree, sem_print));
+			{
+				status = execute_simple_command_wrapper(root->child->head->as_tree, sem_print);
+				return (status);
+			}
 			travel = travel->next;
 			i++;
 		}
@@ -192,9 +201,7 @@ int	execute_single_command(t_tree *root, sem_t *sem_print)
 	if (pid == 0)
 	{
 		status = execute_simple_command_wrapper(root->child->head->as_tree, sem_print);
-		gc_free(PERM);
-		gc_free(TEMP);
-		rl_clear_history();
+		exit_cleanup();
 		exit(status);
 	}
 	while (wait(&status) > 0)
@@ -213,6 +220,8 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 	int				pipefd[2];
 	pid_t			pid;
 
+	redir_flag(RESET_IN_FLAG);
+	redir_flag(RESET_OUT_FLAG);
 	if (root->nb_child == 1)
 		return (execute_single_command(root, sem_print));
 	travel = root->child->head;
@@ -242,9 +251,7 @@ int	execute_pipe_sequence(t_tree *root, sem_t *sem_print)
 				status = execute_compound_command(travel->as_tree, sem_print);
 			else
 				status = execute_simple_command_wrapper(travel->as_tree, sem_print);
-			gc_free(TEMP);
-			gc_free(PERM);
-			rl_clear_history();
+			exit_cleanup();
 			exit(status);
 		}
 		if (prev_in_fd != -1)
