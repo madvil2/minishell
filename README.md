@@ -21,6 +21,7 @@ Minishell is a simplified shell that provides a command-line interface for inter
 ## Features
 
 ### Core Functionality
+
 - **Interactive command prompt** with readline support
 - **Command execution** with PATH resolution
 - **Environment variable expansion** (`$VAR` syntax)
@@ -28,6 +29,7 @@ Minishell is a simplified shell that provides a command-line interface for inter
 - **Exit status management**
 
 ### Advanced Features
+
 - **Pipes** (`|`) for chaining commands
 - **Logical operators** (`&&`, `||`) for conditional execution
 - **Parentheses** for command grouping
@@ -42,6 +44,7 @@ Minishell is a simplified shell that provides a command-line interface for inter
 ## Installation
 
 ### Prerequisites
+
 - GCC compiler
 - GNU Readline library
 - Make
@@ -49,12 +52,14 @@ Minishell is a simplified shell that provides a command-line interface for inter
 ### Build Instructions
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd minishell
 ```
 
 2. Build the project:
+
 ```bash
 make
 ```
@@ -62,11 +67,13 @@ make
 The build process will automatically clone and compile the required `libft` library.
 
 3. Run the shell:
+
 ```bash
 ./minishell
 ```
 
 ### Clean Up
+
 ```bash
 make clean    # Remove object files
 make fclean   # Remove executable and object files
@@ -88,15 +95,15 @@ type shit: export MY_VAR="value" && echo $MY_VAR
 
 Minishell implements the following built-in commands:
 
-| Command | Description | Usage |
-|---------|-------------|-------|
-| `echo` | Display text | `echo [-n] [text...]` |
-| `cd` | Change directory | `cd [directory]` |
-| `pwd` | Print working directory | `pwd` |
-| `export` | Set environment variables | `export [VAR=value]` |
-| `unset` | Unset environment variables | `unset [VAR]` |
-| `env` | Display environment variables | `env` |
-| `exit` | Exit the shell | `exit [status]` |
+| Command  | Description                   | Usage                 |
+| -------- | ----------------------------- | --------------------- |
+| `echo`   | Display text                  | `echo [-n] [text...]` |
+| `cd`     | Change directory              | `cd [directory]`      |
+| `pwd`    | Print working directory       | `pwd`                 |
+| `export` | Set environment variables     | `export [VAR=value]`  |
+| `unset`  | Unset environment variables   | `unset [VAR]`         |
+| `env`    | Display environment variables | `env`                 |
+| `exit`   | Exit the shell                | `exit [status]`       |
 
 ## Grammar and Parsing
 
@@ -134,19 +141,19 @@ Minishell uses a context-free grammar with 23 production rules to parse command 
 
 The parser builds First and Follow sets for each nonterminal:
 
-| Nonterminal            | Nullable? | First set                              | Follow set                         |
-|------------------------|-----------|----------------------------------------|------------------------------------|
-| S                      | no        | "(", TOK_WORD, "<", ">", "<<", ">>", $ |                                    |
-| complete_command       | yes       | "(", TOK_WORD, "<", ">", "<<", ">>"    | $                                  |
-| and_or_sequence        | no        | "(", TOK_WORD, "<", ">", "<<", ">>"    | ")", $                             |
-| and_or_sequence_tail   | yes       | "||", "&&"                             | ")", $                             |
-| and_or                 | no        | "||", "&&"                             | "(", TOK_WORD, "<", ">", "<<", ">>" |
-| pipe_sequence          | no        | "(", TOK_WORD, "<", ">", "<<", ">>"    | "||", "&&", ")", $                 |
-| pipe_sequence_tail     | yes       | "|"                                    | "||", "&&", ")", $                 |
-| simple_command         | no        | "(", TOK_WORD, "<", ">", "<<", ">>"    | "|", "||", "&&", ")", $            |
-| simple_command_tail    | yes       | TOK_WORD, "<", ">", "<<", ">>"         | "|", "||", "&&", ")", $            |
-| compound_command_tail  | yes       | "<", ">", "<<", ">>"                   | "|", "||", "&&", ")", $            |
-| io_redirect            | no        | "<", ">", "<<", ">>"                   | TOK_WORD                           |
+| Nonterminal           | Nullable? | First set                              | Follow set |
+| --------------------- | --------- | -------------------------------------- | ---------- | ------- | ----------------------------------- | --------------- |
+| S                     | no        | "(", TOK_WORD, "<", ">", "<<", ">>", $ |            |
+| complete_command      | yes       | "(", TOK_WORD, "<", ">", "<<", ">>"    | $          |
+| and_or_sequence       | no        | "(", TOK_WORD, "<", ">", "<<", ">>"    | ")", $     |
+| and_or_sequence_tail  | yes       | "                                      |            | ", "&&" | ")", $                              |
+| and_or                | no        | "                                      |            | ", "&&" | "(", TOK_WORD, "<", ">", "<<", ">>" |
+| pipe_sequence         | no        | "(", TOK_WORD, "<", ">", "<<", ">>"    | "          |         | ", "&&", ")", $                     |
+| pipe_sequence_tail    | yes       | "                                      | "          | "       |                                     | ", "&&", ")", $ |
+| simple_command        | no        | "(", TOK_WORD, "<", ">", "<<", ">>"    | "          | ", "    |                                     | ", "&&", ")", $ |
+| simple_command_tail   | yes       | TOK_WORD, "<", ">", "<<", ">>"         | "          | ", "    |                                     | ", "&&", ")", $ |
+| compound_command_tail | yes       | "<", ">", "<<", ">>"                   | "          | ", "    |                                     | ", "&&", ")", $ |
+| io_redirect           | no        | "<", ">", "<<", ">>"                   | TOK_WORD   |
 
 ## Project Structure
 
@@ -205,10 +212,11 @@ minishell/
 The project includes several testing frameworks in the `testers/` directory:
 
 - **minishell_tester/**: Comprehensive test suite
-- **tester/**: Basic functionality tests  
+- **tester/**: Basic functionality tests
 - **tester2/**: Advanced feature tests with Python test runner
 
 To run tests:
+
 ```bash
 cd testers/tester2
 python3 minitester.py
@@ -217,23 +225,27 @@ python3 minitester.py
 ## Technical Details
 
 ### Memory Management
+
 - Custom garbage collector for automatic memory cleanup
 - Separate allocators for permanent and temporary memory
 - Memory leak prevention and cleanup on exit
 
 ### Signal Handling
+
 - Proper handling of SIGINT (Ctrl+C)
 - SIGQUIT (Ctrl+\) handling
 - EOF (Ctrl+D) detection
 - Interactive vs non-interactive signal behavior
 
 ### Process Management
+
 - Fork/exec for external command execution
 - Proper process synchronization
 - Exit status propagation
 - Pipe management with file descriptor handling
 
 ### Parsing Architecture
+
 - Lexical analysis with tokenization
 - Syntax analysis using pushdown automaton
 - Parse tree construction and flattening
@@ -242,7 +254,8 @@ python3 minitester.py
 
 ## Authors
 
-- **kokaimov** - Main developer (kokaimov@student.42berlin.de)
+- **kokaimov** - kokaimov@student.42berlin.de
+- **nam-vu** - nam-vu@student.42berlin.de
 
 ## License
 
